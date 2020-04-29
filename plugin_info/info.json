@@ -1,0 +1,11 @@
+{
+	"id" : "husqvarna",
+	"name" : "Husqvarna",
+	"licence" : "AGPL",
+	"author" : "Jeedom Legacy",
+	"require" : "3.0",
+	"category" : "devicecommunication",
+	"display" : "panel",
+	"hasDependency" : false,
+	"hasOwnDeamon" : false
+}

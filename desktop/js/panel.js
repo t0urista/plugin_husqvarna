@@ -14,41 +14,135 @@
  * You should have received a copy of the GNU General Public License
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
- var globalEqLogic = $( "#eqlogic_select option:selected" ).val();
+ var globalEqLogic = $("#eqlogic_select option:selected").val();
  var isCoutVisible = false;
 $(".in_datepicker").datepicker();
 
+var mower_dtlog = [];
+// definition des la position de la carte
+var MAP_T_LAT  = 44.79974;
+var MAP_L_LON  = -0.83752;
+var MAP_B_LAT  = 44.79933;
+var MAP_R_LON  = -0.83692;
+var MAP_WIDTH  = 800;
+var MAP_HEIGHT = 783;
 
+
+loadData();
+
+// capturer les donnees depuis le serveur
+function loadData(){
+$.ajax({
+        type: 'POST',
+        url: 'plugins/husqvarna/core/ajax/husqvarna.ajax.php',
+        data: {
+            action: 'getLogData',
+            eqLogic_id: globalEqLogic,
+        },
+        dataType: 'json',
+        error: function (request, status, error) {
+            alert("loadData:Error"+status+"/"+error);
+            handleAjaxError(request, status, error);
+        },
+        success: function (data) {
+            console.log("[loadData] Objet téléinfo récupéré : " + globalEqLogic);
+            if (data.state != 'ok') {
+                $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                return;
+            }
+            dt_log = jQuery.parseJSON(data.result);
+            nb_dt = dt_log.log.length;
+            //alert("getLogData:data nb="+nb_dt);
+            mower_dtlog = [];
+            for (p=0; p<nb_dt; p++) {
+              mower_dtlog[p] = dt_log.log[p];
+            }
+            //alert("getLogData:"+mower_dtlog);
+            draw_lines();
+            
+        }
+    });
+}
+
+// Affiche les positions du mower_dtlog
+// ====================================
+function draw_lines(mode_value) {
+    // mise en forme des données
+    nb_pts = mower_dtlog.length;
+    var dtlog_ts  = [];
+    var dtlog_st  = [];
+    var dtlog_lat = [];
+    var dtlog_lon = [];
+    var idx=0;
+    var mode = 0;
+	if (mode_value == "lines")
+		mode = 0;
+    else if (mode_value == "circles")
+		mode = 1;
+    for (i=0; i<nb_pts; i++) {
+      tmp = mower_dtlog[i].split(',');
+      if (tmp[1] == 2) {  //si etat = "OK_CUTTING"
+        dtlog_ts[idx]  = tmp[0];
+        dtlog_lat[idx] = tmp[2];
+        dtlog_lon[idx] = tmp[3];
+        idx++;
+      }
+    }
+    // tracé des points
+    var lat_height = MAP_B_LAT - MAP_T_LAT;
+    var lon_width  = MAP_R_LON - MAP_L_LON;
     var canvas = document.querySelector('.myCanvas');
     var ctx = canvas.getContext('2d');
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.globalAlpha = 1.0;
-    hist = "263,154/313,192/328,213/214,202/270,189/339,168/314,268/298,287/336,287/330,277/234,226/262,175/272,165/250,224/251,170/329,216/353,239/286,296/291,312/311,264/312,159/314,119/287,173/282,271/343,242/324,205/243,159/297,211/359,274/291,255/283,218/327,157/321,269/311,283/270,181/268,186/347,259/319,280/332,293/313,218/282,133/297,234/310,309/330,216/316,155/317,178/323,268/288,340/287,340/280,319/";
-    list_of_points = hist.split('/');
     ctx.setLineDash([5,5]);
     ctx.lineWidth = 2;
-    var i;
-    for (i=0; i<51; i++) {
-      point = list_of_points[i].split(',');
-      if (i==0) {
-        ctx.beginPath();
-        ctx.strokeStyle = 'red';
-        ctx.moveTo(point[0]*2,point[1]*2);
+    //alert("draw_lines:dtlog_lat="+dtlog_lat);
+    rnb_pts = dtlog_ts.length;
+    var prev_ts=0;
+    for (i=0; i<rnb_pts; i++) {
+      // calcul de la position du point sur la carte
+      xpos = Math.round(MAP_WIDTH  * (dtlog_lon[i]-MAP_L_LON) / lon_width);
+      ypos = Math.round(MAP_HEIGHT * (dtlog_lat[i]-MAP_T_LAT) / lat_height);
+      //alert("draw_lines:xpos="+xpos);
+      if (mode == 0) {
+        if ((i==0) || (dtlog_ts[i] - prev_ts>100)) {
+          ctx.beginPath();
+          ctx.strokeStyle = 'red';
+          ctx.moveTo(xpos,ypos);
+          prev_ts = dtlog_ts[i];
         }
-      else {
-        ctx.lineTo(point[0]*2,point[1]*2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.globalAlpha = 1.0-(i*0.015);
-        ctx.strokeStyle = 'red';
-        ctx.moveTo(point[0]*2,point[1]*2);
+        else {
+          ctx.lineTo(xpos,ypos);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.strokeStyle = 'red';
+          ctx.moveTo(xpos,ypos);
+          prev_ts = dtlog_ts[i];
         }
+      }
+      else if (mode == 1) {
+        // trace cercle autour du point courant
+        ctx.beginPath();
+        ctx.globalAlpha = 0.4;
+		ctx.fillStyle='red';  //"#FF4422"
+        ctx.arc(xpos, ypos, 8, 0, 2 * Math.PI);
+        ctx.fill();
+      
+      }
     }
-    // trace cercle autour du point courant
-    ctx.beginPath();
-    ctx.strokeStyle = 'GreenYellow';
-    ctx.globalAlpha = 1.0;
-    ctx.lineWidth = 4;
-    ctx.setLineDash([]);
-    point = list_of_points[0].split(',');
-    ctx.arc(point[0]*2, point[1]*2, 8, 0, 2 * Math.PI);
-    ctx.stroke();
+
+}
+
+// gestion des radio buttons : mode d'historique
+// =============================================
+const rb_lines = document.querySelector('#rb_lines');
+const rb_circles = document.querySelector('#rb_circles');
+
+rb_lines.addEventListener('change', update_GPS_History);
+rb_circles.addEventListener('change', update_GPS_History);
+
+function update_GPS_History(e) {
+  //alert("update_GPS_History:"+e.target.value);
+  draw_lines(e.target.value);
+}

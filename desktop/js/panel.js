@@ -24,20 +24,27 @@ var MAP_T_LAT  = 44.79974;
 var MAP_L_LON  = -0.83752;
 var MAP_B_LAT  = 44.79933;
 var MAP_R_LON  = -0.83692;
-var MAP_WIDTH  = 800;
-var MAP_HEIGHT = 783;
+var MAP_WIDTH  = 600;
+var MAP_HEIGHT = 587;
 
-
+// Fonctions realisées au chargement de la page: charger les données sur la période par défaut,
+// et afficher les infos correspondantes
+// ============================================================================================
 loadData();
 
 // capturer les donnees depuis le serveur
+// ======================================
 function loadData(){
-$.ajax({
+    var param = [];
+    param[0]= (Date.parse($('#in_startDate').value())/1000);  // Time stamp en seconde
+    param[1]= (Date.parse($('#in_endDate').value())/1000);
+    $.ajax({
         type: 'POST',
         url: 'plugins/husqvarna/core/ajax/husqvarna.ajax.php',
         data: {
             action: 'getLogData',
             eqLogic_id: globalEqLogic,
+            param: param
         },
         dataType: 'json',
         error: function (request, status, error) {
@@ -58,7 +65,7 @@ $.ajax({
               mower_dtlog[p] = dt_log.log[p];
             }
             //alert("getLogData:"+mower_dtlog);
-            draw_lines();
+            draw_lines(rb_get_mode_value());
             
         }
     });
@@ -146,3 +153,20 @@ function update_GPS_History(e) {
   //alert("update_GPS_History:"+e.target.value);
   draw_lines(e.target.value);
 }
+
+function rb_get_mode_value() {
+  var rb_list = document.getElementsByName('hist_mode');;
+  //alert(rb_list.length);
+  for (i=0; i<rb_list.length; i++) {
+    if (rb_list[i].checked == true) {
+      //alert(rb_list[i].value + ' you got a value');     
+      return rb_list[i].value;
+    }
+  }
+  
+}
+// gestion du bouton mise à jour de la période
+// ===========================================
+$('#bt_validChangeDate').on('click',function(){
+  loadData();
+});

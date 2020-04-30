@@ -20,15 +20,13 @@
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 require_once dirname(__FILE__) . '/../../3rdparty/husqvarna_api.class.php';
 
-define("MAP_T_LAT", 44.79974);
-define("MAP_L_LON", -0.83752);
-define("MAP_B_LAT", 44.79933); 
-define("MAP_R_LON", -0.83692);
-define("MAP_WIDTH",  400);
-define("MAP_HEIGHT", 394);
-define('LOG_PATH',  "/var/www/html/tmp/log/");
-define("GPS_LOG",   LOG_PATH."gps_log.txt");
-
+const MAP_T_LAT = 44.79974;
+const MAP_L_LON = -0.83752;
+const MAP_B_LAT = 44.79933; 
+const MAP_R_LON = -0.83692;
+const MAP_WIDTH =  400;
+const MAP_HEIGHT=  394;
+const MOWER_LOG_FILE = '/../../data/mower_log.txt';
 
 class husqvarna extends eqLogic {
     /*     * *************************Attributs****************************** */
@@ -187,8 +185,8 @@ class husqvarna extends eqLogic {
                         {
                             if ($id == "lastLocations")
                             {
-								// get state code value for logging
-								$state_code = $session_husqvarna->get_state_code($status->{"mowerStatus"});
+                                // get state code value for logging
+                                $state_code = $session_husqvarna->get_state_code($status->{"mowerStatus"});
                                 // compute PGS position for each point on image
                                 $lat_height= MAP_B_LAT - MAP_T_LAT;
                                 $lon_width = MAP_R_LON - MAP_L_LON;
@@ -204,10 +202,11 @@ class husqvarna extends eqLogic {
                                 }
                                 log::add('husqvarna','debug',"Refresh DBG:Gps_pos=".$gps_pos);
                                 $cmd->event($gps_pos);
-                                // Log GPS position for statistics (en mode "OK_CUTTING" uniquement)
+                                // Log GPS position for statistics
                                 log::add('husqvarna','debug',"Refresh DBG:mowerStatus=".$status->{"mowerStatus"}." / state code=".$state_code);
-                                //if ($status->{"mowerStatus"} == "OK_CUTTING")
-                                file_put_contents(GPS_LOG, $gps_log_dt, FILE_APPEND | LOCK_EX);
+                                $log_fn = dirname(__FILE__).MOWER_LOG_FILE;
+                                log::add('husqvarna','debug',"Refresh DBG:log_fn=".$log_fn);
+                                file_put_contents($log_fn, $gps_log_dt, FILE_APPEND | LOCK_EX);
                             }
                             elseif ($id == "lastErrorCode")
                             {

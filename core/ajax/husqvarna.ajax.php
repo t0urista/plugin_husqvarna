@@ -16,26 +16,31 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 global $mower_dt_log;
-//const MOWER_LOG_FILE = "../tmp/log/gps_log.txt";
-const MOWER_LOG_FILE = "/var/www/html/tmp/log/gps_log.txt";
+const MOWER_LOG_FILE = '/../../data/mower_log.txt';
 
 // ==========================================================
 // Fonction de recuperation des donnees de log de la tondeuse
 // ==========================================================
-function get_mower_dt_log()
+function get_mower_dt_log($ts_start, $ts_end)
 {
   global $mower_dt_log;
   
   // ouverture du fichier de log
-  $flog = fopen(MOWER_LOG_FILE, "r");
+  $log_fn = dirname(__FILE__).MOWER_LOG_FILE;
+  $flog = fopen($log_fn, "r");
 
   // lecture des donnees
   $line = 0;
   $mower_dt_log["log"] = [];
   if ($flog) {
     while (($buffer = fgets($flog, 4096)) !== false) {
-      $mower_dt_log["log"][$line] = $buffer;
-	  $line = $line + 1;
+      // extrait le timestamp du log courant
+      list($ts, $st, $lat, $lon) = explode(",", $buffer);
+      $tsi = intval($ts);
+      if (($tsi>=$ts_start) && ($tsi<=$ts_end)) {
+        $mower_dt_log["log"][$line] = $buffer;
+        $line = $line + 1;
+      }
     }
   }
 
@@ -45,7 +50,9 @@ function get_mower_dt_log()
 }
 
 
-
+// =====================================
+// Gestion des commandes recues par AJAX
+// =====================================
 try {
     require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
     include_file('core', 'authentification', 'php');
@@ -56,13 +63,16 @@ try {
 
 	ajax::init();
 
-    if (init('action') == 'force_detect_movers') {
+  if (init('action') == 'force_detect_movers') {
 		$husqvarnaCmd = husqvarna::force_detect_movers();
 		ajax::success($husqvarnaCmd);
     }
   else if (init('action') == 'getLogData') {
     log::add('husqvarna', 'debug', 'get_mower_dt_log - Ajax:');
-    get_mower_dt_log();
+    //log::add('husqvarna', 'debug', 'param0:'.init('param')[0]);
+    //log::add('husqvarna', 'debug', 'param1:'.init('param')[1]);
+    // Param 0 et 1 sont les timestamp de debut et fin de la periode de log demandée
+    get_mower_dt_log(intval (init('param')[0]), intval (init('param')[1]));
     $ret_json = json_encode ($mower_dt_log);
     //log::add('husqvarna', 'debug', 'get_mower_dt_log - Ajax:'.$ret_json);
     ajax::success($ret_json);

@@ -9,6 +9,11 @@ $date = array(
 sendVarToJS('eqType', 'husqvarna');
 sendVarToJs('object_id', init('object_id'));
 $eqLogics = eqLogic::byType('husqvarna');
+$feqLogic = $eqLogics[0]; // Gestion uniquement du premier élément
+$map_pan_ratio = $feqLogic->getConfiguration('img_pan_ratio');
+$map_wd = round($feqLogic->getConfiguration('img_loc_width') * $map_pan_ratio/100);
+$map_he = round($feqLogic->getConfiguration('img_loc_height') * $map_pan_ratio/100);
+log::add('husqvarna','debug',"Pannel DBG:image size=".$map_wd." / ".$map_he);
 ?>
 
 
@@ -60,8 +65,13 @@ $eqLogics = eqLogic::byType('husqvarna');
                          <div id='div_hist_gps' style="width:1200px;height:900px;">
                          <div style="max-width:1200px;margin:auto;position:relative;">
                            <div style="width:615px;position:absolute;">
-                             <canvas class="myCanvas" width="600" height="587" style="background:url('plugins/husqvarna/ressources/maison_pn.png') no-repeat center center;border:5px solid #000000;">
+                              <?php
+                                echo '<canvas class="myCanvas" width="'.$map_wd.'" height="'.$map_he.'" style="border:5px solid #000000;">';
+                              ?>
                              </canvas>
+                             <div style="display:none;">
+                               <img id="img_loc" src="plugins/husqvarna/ressources/maison.png">
+                             </div>
                            </div> 
                          </div>
                          <div style="margin-left:700px;min-height:200px;">

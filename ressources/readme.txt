@@ -10,4 +10,4 @@ Elements statistiques d'utilisation entre 2 dates:
 
 
 Options ultérieures:
-* stats par zonzes
+* stats par zones

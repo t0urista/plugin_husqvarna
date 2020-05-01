@@ -20,13 +20,13 @@
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 require_once dirname(__FILE__) . '/../../3rdparty/husqvarna_api.class.php';
 
-const MAP_T_LAT = 44.79974;
-const MAP_L_LON = -0.83752;
-const MAP_B_LAT = 44.79933; 
-const MAP_R_LON = -0.83692;
+//const MAP_TL_LAT = 44.79974,-0.83752
+//const MAP_BR_LAT = 44.79933,-0.83692
+
 const MAP_WIDTH =  400;
 const MAP_HEIGHT=  394;
 const MOWER_LOG_FILE = '/../../data/mower_log.txt';
+const MOWER_IMG_FILE = '/../../ressources/maison.png';
 
 class husqvarna extends eqLogic {
     /*     * *************************Attributs****************************** */
@@ -62,6 +62,15 @@ class husqvarna extends eqLogic {
     public function postInsert()
     {
         $this->postUpdate();
+    }
+    
+    public function preSave() {
+      // recupation des infos de taille de l'image de localisation => Ajoute 2 valeurs de configuration à l'équipement
+      $img_fn = dirname(__FILE__).MOWER_IMG_FILE;
+      list($width, $height, $type, $attr) = getimagesize($img_fn);
+      log::add('husqvarna','debug','postUpdate:img_info='.$width." / ".$height." / ".$type." / ".$attr);
+      $this->setConfiguration('img_loc_width', $width);
+      $this->setConfiguration('img_loc_height', $height);
     }
 
     private function getListeDefaultCommandes()
@@ -136,6 +145,7 @@ class husqvarna extends eqLogic {
                 $cmd->save();
             }
         }
+      
       // ajout de la commande refresh data
       $refresh = $this->getCmd(null, 'refresh');
       if (!is_object($refresh)) {
@@ -146,8 +156,8 @@ class husqvarna extends eqLogic {
       $refresh->setLogicalId('refresh');
       $refresh->setType('action');
       $refresh->setSubType('other');
-      $refresh->save();      
-
+      $refresh->save();
+      
     }
 
     public function preRemove() {
@@ -187,17 +197,26 @@ class husqvarna extends eqLogic {
                             {
                                 // get state code value for logging
                                 $state_code = $session_husqvarna->get_state_code($status->{"mowerStatus"});
-                                // compute PGS position for each point on image
-                                $lat_height= MAP_B_LAT - MAP_T_LAT;
-                                $lon_width = MAP_R_LON - MAP_L_LON;
+                                // compute GPS position for each point on image
+                                $map_tl = $this->getConfiguration('gps_tl');
+                                $map_br = $this->getConfiguration('gps_br');
+                                $map_wd_ratio = $this->getConfiguration('img_wdg_ratio');
+                                $map_wd = round($this->getConfiguration('img_loc_width') * $map_wd_ratio/100);
+                                $map_he = round($this->getConfiguration('img_loc_height') * $map_wd_ratio/100);
+                                log::add('husqvarna','debug',"Refresh DBG:image pos=".$map_tl." / ".$map_br);
+                                log::add('husqvarna','debug',"Refresh DBG:image size=".$map_wd." / ".$map_he);
+                                list($map_t, $map_l) = explode(",", $map_tl);
+                                list($map_b, $map_r) = explode(",", $map_br);
+                                $lat_height = $map_b - $map_t;
+                                $lon_width  = $map_r - $map_l;
                                 $gps_pos = "";
                                 for ($i=0; $i<50; $i++) {
                                     $gps_lat = floatval($status->{$id}[$i]->{"latitude"});
                                     $gps_lon = floatval($status->{$id}[$i]->{"longitude"});
                                     if ($i == 0)
                                       $gps_log_dt = time().",".$state_code.",".$gps_lat.",".$gps_lon."\n";
-                                    $xpos = round(MAP_WIDTH  * ($gps_lon-MAP_L_LON)/$lon_width);
-                                    $ypos = round(MAP_HEIGHT * ($gps_lat-MAP_T_LAT)/$lat_height);
+                                    $xpos = round($map_wd * ($gps_lon-$map_l)/$lon_width);
+                                    $ypos = round($map_he * ($gps_lat-$map_t)/$lat_height);
                                     $gps_pos = $gps_pos.$xpos.",".$ypos.'/';
                                 }
                                 log::add('husqvarna','debug',"Refresh DBG:Gps_pos=".$gps_pos);
@@ -205,7 +224,6 @@ class husqvarna extends eqLogic {
                                 // Log GPS position for statistics
                                 log::add('husqvarna','debug',"Refresh DBG:mowerStatus=".$status->{"mowerStatus"}." / state code=".$state_code);
                                 $log_fn = dirname(__FILE__).MOWER_LOG_FILE;
-                                log::add('husqvarna','debug',"Refresh DBG:log_fn=".$log_fn);
                                 file_put_contents($log_fn, $gps_log_dt, FILE_APPEND | LOCK_EX);
                             }
                             elseif ($id == "lastErrorCode")

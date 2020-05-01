@@ -20,12 +20,21 @@ $(".in_datepicker").datepicker();
 
 var mower_dtlog = [];
 // definition des la position de la carte
-var MAP_T_LAT  = 44.79974;
-var MAP_L_LON  = -0.83752;
-var MAP_B_LAT  = 44.79933;
-var MAP_R_LON  = -0.83692;
-var MAP_WIDTH  = 600;
-var MAP_HEIGHT = 587;
+//var MAP_T_LAT  = 44.79974;
+//var MAP_L_LON  = -0.83752;
+//var MAP_B_LAT  = 44.79933;
+//var MAP_R_LON  = -0.83692;
+//var MAP_WIDTH  = 617;
+//var MAP_HEIGHT = 604;
+
+var map_t_lat;
+var map_l_lon;
+var map_b_lat;
+var map_r_lon;
+var map_width;
+var map_height;
+
+
 
 // Fonctions realisées au chargement de la page: charger les données sur la période par défaut,
 // et afficher les infos correspondantes
@@ -65,6 +74,21 @@ function loadData(){
               mower_dtlog[p] = dt_log.log[p];
             }
             //alert("getLogData:"+mower_dtlog);
+            //alert("getConfData:"+dt_log.config.map_tl);
+            // Capture les donnees de configuration
+            dt = dt_log.config.map_tl.split(',');
+            map_t_lat = dt[0];
+            map_l_lon = dt[1];
+            dt = dt_log.config.map_br.split(',');
+            map_b_lat = dt[0];
+            map_r_lon = dt[1];
+            map_wd = dt_log.config.map_wd;
+            map_he = dt_log.config.map_he;
+            map_wr = parseFloat(dt_log.config.map_wr);
+            map_pr = parseFloat(dt_log.config.map_pr);
+            map_width = Math.round((map_wd*map_pr)/100);
+            map_height = Math.round((map_he*map_pr)/100);
+            // Trace les positions sur la carte
             draw_lines(rb_get_mode_value());
             
         }
@@ -74,6 +98,8 @@ function loadData(){
 // Affiche les positions du mower_dtlog
 // ====================================
 function draw_lines(mode_value) {
+    //alert("init('object_id'):",init('object_id'));
+
     // mise en forme des données
     nb_pts = mower_dtlog.length;
     var dtlog_ts  = [];
@@ -82,10 +108,10 @@ function draw_lines(mode_value) {
     var dtlog_lon = [];
     var idx=0;
     var mode = 0;
-	if (mode_value == "lines")
-		mode = 0;
+    if (mode_value == "lines")
+      mode = 0;
     else if (mode_value == "circles")
-		mode = 1;
+      mode = 1;
     for (i=0; i<nb_pts; i++) {
       tmp = mower_dtlog[i].split(',');
       if (tmp[1] == 2) {  //si etat = "OK_CUTTING"
@@ -95,12 +121,17 @@ function draw_lines(mode_value) {
         idx++;
       }
     }
-    // tracé des points
-    var lat_height = MAP_B_LAT - MAP_T_LAT;
-    var lon_width  = MAP_R_LON - MAP_L_LON;
+    // tracé de l'image de fond
     var canvas = document.querySelector('.myCanvas');
     var ctx = canvas.getContext('2d');
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1.0;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //var backgroundImage = new Image(); 
+    //backgroundImage.src = 'plugins/husqvarna/ressources/maison.png'; 
+    ctx.drawImage(document.getElementById('img_loc'), 0, 0, map_width, map_height);
+    // tracé des points
+    var lat_height = map_b_lat - map_t_lat;
+    var lon_width  = map_r_lon - map_l_lon;
     ctx.globalAlpha = 1.0;
     ctx.setLineDash([5,5]);
     ctx.lineWidth = 2;
@@ -109,8 +140,8 @@ function draw_lines(mode_value) {
     var prev_ts=0;
     for (i=0; i<rnb_pts; i++) {
       // calcul de la position du point sur la carte
-      xpos = Math.round(MAP_WIDTH  * (dtlog_lon[i]-MAP_L_LON) / lon_width);
-      ypos = Math.round(MAP_HEIGHT * (dtlog_lat[i]-MAP_T_LAT) / lat_height);
+      xpos = Math.round(map_width  * (dtlog_lon[i]-map_l_lon) / lon_width);
+      ypos = Math.round(map_height * (dtlog_lat[i]-map_t_lat) / lat_height);
       //alert("draw_lines:xpos="+xpos);
       if (mode == 0) {
         if ((i==0) || (dtlog_ts[i] - prev_ts>100)) {
@@ -132,7 +163,7 @@ function draw_lines(mode_value) {
         // trace cercle autour du point courant
         ctx.beginPath();
         ctx.globalAlpha = 0.4;
-		ctx.fillStyle='red';  //"#FF4422"
+        ctx.fillStyle='red';  //"#FF4422"
         ctx.arc(xpos, ypos, 8, 0, 2 * Math.PI);
         ctx.fill();
       

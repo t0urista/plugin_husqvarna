@@ -129,7 +129,52 @@ sendVarToJS('eqType', 'husqvarna');
                                 <input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked/>
                             </div>
                         </div>
-                    </fieldset> 
+                        <div class="form-group" style="min-height: 20px;">
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">{{Positions GPS de l'image de localisation}}</label>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">{{Haut/Gauche}}</label>
+                          <div class="col-lg-3">
+                             <input type="text" class="eqLogicAttr configuration form-control" data-l1key="configuration" data-l2key="gps_tl" placeholder="lat,lon"/>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">{{Bas/Droite}}</label>
+                          <div class="col-lg-3">
+                             <input type="text" class="eqLogicAttr configuration form-control" data-l1key="configuration" data-l2key="gps_br" placeholder="lat,lon"/>
+                          </div>
+                        </div>
+                        <div class="form-group" style="min-height: 20px;">
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">{{Image de localisation}}</label>
+                          <div class="col-lg-3">
+                            <p>Placer un fichier nommé "maison.png" dans le dossier "ressources" du plugin.<br>Le fichier doit faire autour de 400 x 400 pixels. L'image doit apparaitre ci-dessous</p>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">{{=>}}</label>
+                          <div class="col-lg-3">
+                            <img class="pull-left" src="plugins/husqvarna/ressources/maison.png" />
+                          </div>
+                        </div>
+                        <div class="form-group" style="min-height: 10px;">
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">{{Facteur de taille pour le widget}}</label>
+                          <div class="col-lg-3">
+                             <input type="text" class="eqLogicAttr configuration form-control" data-l1key="configuration" data-l2key="img_wdg_ratio" placeholder="80%"/>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">{{Facteur de taille pour le pannel}}</label>
+                          <div class="col-lg-3">
+                             <input type="text" class="eqLogicAttr configuration form-control" data-l1key="configuration" data-l2key="img_pan_ratio" placeholder="120%"/>
+                          </div>
+                        </div>
+                    </fieldset>
                 </form>
 			</div>
 			<div role="tabpanel" class="tab-pane" id="commandtab">

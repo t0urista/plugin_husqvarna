@@ -151,7 +151,7 @@ sendVarToJS('eqType', 'husqvarna');
                         <div class="form-group">
                           <label class="col-lg-2 control-label">{{Image de localisation}}</label>
                           <div class="col-lg-3">
-                            <p>Placer un fichier nommé "maison.png" dans le dossier "ressources" du plugin.<br>Le fichier doit faire autour de 400 x 400 pixels. L'image doit apparaitre ci-dessous</p>
+                            <p>Placer un fichier nommé "maison.png" dans le dossier "ressources" du plugin.<br>Le fichier doit faire autour de 500 x 500 pixels. L'image doit apparaitre ci-dessous</p>
                           </div>
                         </div>
                         <div class="form-group">

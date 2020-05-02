@@ -18,7 +18,6 @@
  var isCoutVisible = false;
 $(".in_datepicker").datepicker();
 
-var mower_dtlog = [];
 // definition des la position de la carte
 //var MAP_T_LAT  = 44.79974;
 //var MAP_L_LON  = -0.83752;
@@ -27,14 +26,28 @@ var mower_dtlog = [];
 //var MAP_WIDTH  = 617;
 //var MAP_HEIGHT = 604;
 
+// Liste des états possible du robot
+var STATE_PARKED_TIMER    	           =  0; 
+var STATE_OK_LEAVING    	             =  1; 
+var STATE_OK_CUTTING    	             =  2; 
+var STATE_PARKED_PARKED_SELECTED    	 =  3; 
+var STATE_OK_SEARCHING    	           =  4; 
+var STATE_OK_CHARGING    	             =  5; 
+var STATE_PAUSED    	                 =  6; 
+var STATE_PARKED_AUTOTIMER    	       =  7; 
+var STATE_COMPLETED_CUTTING_TODAY_AUTO =  8; 
+var STATE_PARKED_TIMER    	           =  9; 
+var STATE_OK_CUTTING_NOT_AUTO          = 10;
+var STATE_OFF_HATCH_OPEN               = 11; 
+
+// Variables partagées
+var mower_dtlog = [];
 var map_t_lat;
 var map_l_lon;
 var map_b_lat;
 var map_r_lon;
 var map_width;
 var map_height;
-
-
 
 // Fonctions realisées au chargement de la page: charger les données sur la période par défaut,
 // et afficher les infos correspondantes
@@ -61,7 +74,7 @@ function loadData(){
             handleAjaxError(request, status, error);
         },
         success: function (data) {
-            console.log("[loadData] Objet téléinfo récupéré : " + globalEqLogic);
+            console.log("[loadData] Objet husqvarna récupéré : " + globalEqLogic);
             if (data.state != 'ok') {
                 $('#div_alert').showAlert({message: data.result, level: 'danger'});
                 return;
@@ -69,13 +82,14 @@ function loadData(){
             dt_log = jQuery.parseJSON(data.result);
             nb_dt = dt_log.log.length;
             //alert("getLogData:data nb="+nb_dt);
+            // Capture les donnees de position
             mower_dtlog = [];
             for (p=0; p<nb_dt; p++) {
               mower_dtlog[p] = dt_log.log[p];
             }
             //alert("getLogData:"+mower_dtlog);
-            //alert("getConfData:"+dt_log.config.map_tl);
             // Capture les donnees de configuration
+            //alert("getConfData:"+dt_log.config.map_tl);
             dt = dt_log.config.map_tl.split(',');
             map_t_lat = dt[0];
             map_l_lon = dt[1];
@@ -90,6 +104,7 @@ function loadData(){
             map_height = Math.round((map_he*map_pr)/100);
             // Trace les positions sur la carte
             draw_lines(rb_get_mode_value());
+            stat_usage ();
             
         }
     });
@@ -114,7 +129,7 @@ function draw_lines(mode_value) {
       mode = 1;
     for (i=0; i<nb_pts; i++) {
       tmp = mower_dtlog[i].split(',');
-      if (tmp[1] == 2) {  //si etat = "OK_CUTTING"
+      if (tmp[1] == STATE_OK_CUTTING) {  //si etat = "OK_CUTTING"
         dtlog_ts[idx]  = tmp[0];
         dtlog_lat[idx] = tmp[2];
         dtlog_lon[idx] = tmp[3];
@@ -124,6 +139,8 @@ function draw_lines(mode_value) {
     // tracé de l'image de fond
     var canvas = document.querySelector('.myCanvas');
     var ctx = canvas.getContext('2d');
+    ctx.canvas.width = map_width;
+    ctx.canvas.height= map_height;
     ctx.globalAlpha = 1.0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //var backgroundImage = new Image(); 
@@ -172,10 +189,80 @@ function draw_lines(mode_value) {
 
 }
 
+
+// Calcul des statistiques d'utilisation du robot sur la période
+// =============================================================
+// Nombre de cycle de tonte => Si plus de 5 points consécutifs pour lesquels state = CUTTING : +1 cycle de tonte
+// Nombre de cycle de charge => Si plus de 5 points consécutifs pour lesquels state = CHARGING : +1 cycle de charge
+// Nombre d'heure de fonctionnement en coupe => Somme des temps entre 2 points pour lesquels state = CUTTING
+// Nombre d'heure de recharge => Somme des temps entre 2 points pour lesquels state = CHARGING
+// Durée en phase de recherche => Somme des temps entre 2 points pour lesquels state = SEARCHING
+// Durée en phase de départ => Somme des temps entre 2 points pour lesquels state = LEAVING
+// Durée moyenne des cycles de tonte => Nombre d'heure de fonctionnement en coupe / Nombre de cycle de tonte
+// Durée moyenne des cycles de charge => Nombre d'heure de recharge / Nombre de cycle de charge
+function stat_usage () {
+  var nb_cycle_charging = 0;
+  var nb_cycle_cutting = 0;
+  var duration_charging = 0;
+  var duration_cutting = 0;
+  var duration_searching = 0;
+  var duration_leaving = 0;
+  var nb_consecutive_cycle_charging = 0;
+  var nb_consecutive_cycle_cutting = 0;
+  
+  // analyse des données
+  tmp = mower_dtlog[0].split(',');
+  prev_ts = tmp[0];  // time stamp
+  prev_st = tmp[1];  // state
+  nb_pts = mower_dtlog.length;
+  for (i=1; i<nb_pts; i++) {
+    tmp = mower_dtlog[i].split(',');
+    cur_ts = tmp[0];  // time stamp
+    cur_st = tmp[1];  // state
+    if ((cur_st == STATE_OK_CHARGING)&&(prev_st == STATE_OK_CHARGING))
+      duration_charging += cur_ts - prev_ts;
+    if ((cur_st == STATE_OK_CUTTING)&&(prev_st == STATE_OK_CUTTING))
+      duration_cutting += cur_ts - prev_ts;
+    if ((cur_st == STATE_OK_SEARCHING)&&(prev_st == STATE_OK_SEARCHING))
+      duration_searching += cur_ts - prev_ts;
+    if ((cur_st == STATE_OK_LEAVING)&&(prev_st == STATE_OK_LEAVING))
+      duration_leaving += cur_ts - prev_ts;
+
+    if ((cur_st == STATE_OK_CHARGING)&&(prev_st == STATE_OK_CHARGING))
+      nb_consecutive_cycle_charging += 1;
+    else {
+      if (nb_consecutive_cycle_charging > 5)
+        nb_cycle_charging += 1;
+      nb_consecutive_cycle_charging = 0;
+    }
+    if ((cur_st == STATE_OK_CUTTING)&&(prev_st == STATE_OK_CUTTING))
+      nb_consecutive_cycle_cutting += 1;
+    else {
+      if (nb_consecutive_cycle_cutting > 5)
+        nb_cycle_cutting += 1;
+      nb_consecutive_cycle_cutting = 0;
+    }
+    prev_ts = cur_ts;
+    prev_st = cur_st;
+  }
+  // Affichage des résultats dans le DIV:"div_hist_usage"
+  $("#div_hist_usage").empty();
+  $("#div_hist_usage").append("Nombre de points utilisés pour les statistiques: "+nb_pts+"<br>");
+  $("#div_hist_usage").append("Temps de fonctionnement en coupe: "+Math.round(duration_cutting/60)+" mn<br>");
+  $("#div_hist_usage").append("Temps de recharge: "+Math.round(duration_charging/60)+" mn<br>");
+  $("#div_hist_usage").append("Temps de recherche: "+Math.round(duration_searching/60)+" mn<br>");
+  $("#div_hist_usage").append("Temps de départ: "+Math.round(duration_leaving/60)+" mn<br>");
+  $("#div_hist_usage").append("Nombre de cycle de coupe: "+nb_cycle_cutting+"<br>");
+  $("#div_hist_usage").append("Nombre de cycle de charge: "+nb_cycle_charging+"<br>");
+  
+
+  //alert ("duration_cutting="+duration_cutting/60);
+}
+
 // gestion des radio buttons : mode d'historique
 // =============================================
-const rb_lines = document.querySelector('#rb_lines');
-const rb_circles = document.querySelector('#rb_circles');
+var rb_lines = document.querySelector('#rb_lines');
+var rb_circles = document.querySelector('#rb_circles');
 
 rb_lines.addEventListener('change', update_GPS_History);
 rb_circles.addEventListener('change', update_GPS_History);

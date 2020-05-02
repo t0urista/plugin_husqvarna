@@ -9,11 +9,6 @@ $date = array(
 sendVarToJS('eqType', 'husqvarna');
 sendVarToJs('object_id', init('object_id'));
 $eqLogics = eqLogic::byType('husqvarna');
-$feqLogic = $eqLogics[0]; // Gestion uniquement du premier élément
-$map_pan_ratio = $feqLogic->getConfiguration('img_pan_ratio');
-$map_wd = round($feqLogic->getConfiguration('img_loc_width') * $map_pan_ratio/100);
-$map_he = round($feqLogic->getConfiguration('img_loc_height') * $map_pan_ratio/100);
-log::add('husqvarna','debug',"Pannel DBG:image size=".$map_wd." / ".$map_he);
 ?>
 
 
@@ -54,20 +49,18 @@ log::add('husqvarna','debug',"Pannel DBG:image size=".$map_wd." / ".$map_he);
             <div class="col-lg-8 col-lg-offset-2">
                 <form class="form-horizontal">
                      <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 5px 5px;background-color:#f8f8f8">
-                         <div style="padding-top:10px;padding-left:24px;padding-bottom:25px;color: #333;font-size: 1.5em;">
+                         <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
                              <i style="font-size: initial;"></i> {{Statistiques d'utilisation}}
                          </div>
                          <div id='div_hist_usage'></div>
 
-                         <div style="padding-top:10px;padding-left:24px;padding-bottom:25px;color: #333;font-size: 1.5em;">
+                         <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
                              <i style="font-size: initial;"></i> {{Historique des positions GPS}}
                          </div>
-                         <div id='div_hist_gps' style="width:1200px;height:900px;">
+                         <div id='div_hist_gps' style="width:1200px;height:620px;">
                          <div style="max-width:1200px;margin:auto;position:relative;">
                            <div style="width:615px;position:absolute;">
-                              <?php
-                                echo '<canvas class="myCanvas" width="'.$map_wd.'" height="'.$map_he.'" style="border:5px solid #000000;">';
-                              ?>
+                           <canvas class="myCanvas" width="600" height="600" style="border:5px solid #000000;">';
                              </canvas>
                              <div style="display:none;">
                                <img id="img_loc" src="plugins/husqvarna/ressources/maison.png">
@@ -86,6 +79,11 @@ log::add('husqvarna','debug',"Pannel DBG:image size=".$map_wd." / ".$map_he);
                            </div>
                          </div>
                          </div>
+                         <div style="clear"></div>
+                         <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
+                             <i style="font-size: initial;"></i> {{Configuration du robot}}
+                         </div>
+                         <div id='div_hist_usage'></div>
                      </br>
                      </fieldset>
                      <div style="min-height: 10px;"></div>

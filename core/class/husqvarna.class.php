@@ -209,7 +209,7 @@ class husqvarna extends eqLogic {
                                 list($map_b, $map_r) = explode(",", $map_br);
                                 $lat_height = $map_b - $map_t;
                                 $lon_width  = $map_r - $map_l;
-                                $gps_pos = "";
+                                $gps_pos = $map_wd.",".$map_he.'/';  // passe la taille de l'image au widget
                                 for ($i=0; $i<50; $i++) {
                                     $gps_lat = floatval($status->{$id}[$i]->{"latitude"});
                                     $gps_lon = floatval($status->{$id}[$i]->{"longitude"});
@@ -221,10 +221,12 @@ class husqvarna extends eqLogic {
                                 }
                                 log::add('husqvarna','debug',"Refresh DBG:Gps_pos=".$gps_pos);
                                 $cmd->event($gps_pos);
-                                // Log GPS position for statistics
-                                log::add('husqvarna','debug',"Refresh DBG:mowerStatus=".$status->{"mowerStatus"}." / state code=".$state_code);
-                                $log_fn = dirname(__FILE__).MOWER_LOG_FILE;
-                                file_put_contents($log_fn, $gps_log_dt, FILE_APPEND | LOCK_EX);
+                                // Log GPS position for statistics (if valid)
+                                if ($state_code != 99) {
+                                  log::add('husqvarna','debug',"Refresh DBG:mowerStatus=".$status->{"mowerStatus"}." / state code=".$state_code);
+                                  $log_fn = dirname(__FILE__).MOWER_LOG_FILE;
+                                  file_put_contents($log_fn, $gps_log_dt, FILE_APPEND | LOCK_EX);
+                                }
                             }
                             elseif ($id == "lastErrorCode")
                             {

@@ -37,7 +37,7 @@ function get_mower_dt_log($ts_start, $ts_end)
       // extrait le timestamp du log courant
       list($ts, $st, $lat, $lon) = explode(",", $buffer);
       $tsi = intval($ts);
-      if (($tsi>=$ts_start) && ($tsi<=$ts_end)) {
+      if (($tsi>=$ts_start) && ($tsi<=$ts_end) && ($st != 99)) {
         $mower_dt["log"][$line] = $buffer;
         $line = $line + 1;
       }

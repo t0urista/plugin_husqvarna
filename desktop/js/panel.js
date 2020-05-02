@@ -18,14 +18,6 @@
  var isCoutVisible = false;
 $(".in_datepicker").datepicker();
 
-// definition des la position de la carte
-//var MAP_T_LAT  = 44.79974;
-//var MAP_L_LON  = -0.83752;
-//var MAP_B_LAT  = 44.79933;
-//var MAP_R_LON  = -0.83692;
-//var MAP_WIDTH  = 617;
-//var MAP_HEIGHT = 604;
-
 // Liste des états possible du robot
 var STATE_PARKED_TIMER    	           =  0; 
 var STATE_OK_LEAVING    	             =  1; 
@@ -247,16 +239,18 @@ function stat_usage () {
   }
   // Affichage des résultats dans le DIV:"div_hist_usage"
   $("#div_hist_usage").empty();
-  $("#div_hist_usage").append("Nombre de points utilisés pour les statistiques: "+nb_pts+"<br>");
-  $("#div_hist_usage").append("Temps de fonctionnement en coupe: "+Math.round(duration_cutting/60)+" mn<br>");
   $("#div_hist_usage").append("Temps de recharge: "+Math.round(duration_charging/60)+" mn<br>");
-  $("#div_hist_usage").append("Temps de recherche: "+Math.round(duration_searching/60)+" mn<br>");
   $("#div_hist_usage").append("Temps de départ: "+Math.round(duration_leaving/60)+" mn<br>");
+  $("#div_hist_usage").append("Temps de fonctionnement en coupe: "+Math.round(duration_cutting/60)+" mn<br>");
+  $("#div_hist_usage").append("Temps de recherche: "+Math.round(duration_searching/60)+" mn<br><br>");
   $("#div_hist_usage").append("Nombre de cycle de coupe: "+nb_cycle_cutting+"<br>");
   $("#div_hist_usage").append("Nombre de cycle de charge: "+nb_cycle_charging+"<br>");
+  $("#div_hist_usage").append("(Nombre de points utilisés pour les statistiques: "+nb_pts+")<br>");
   
+   // provisoire
+  $("#div_settings").empty();
+  $("#div_settings").append("A venir...");
 
-  //alert ("duration_cutting="+duration_cutting/60);
 }
 
 // gestion des radio buttons : mode d'historique

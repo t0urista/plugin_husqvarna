@@ -29,7 +29,7 @@ $eqLogics = eqLogic::byType('husqvarna');
                 </div>
                 <div class="form-horizontal" style="min-height: 30px;">
                 </div>
-                <img class="pull-right" src="plugins/husqvarna/ressources/automower.png" height="186" width="350" />'
+                <img class="pull-right" src="plugins/husqvarna/ressources/automower.png" height="186" width="350" />
                 <div class="pull-left" style="min-height:150px;font-size: 1.5em;">
                   <i style="font-size: initial;"></i> {{Période analysée}}
                   <br>
@@ -50,7 +50,7 @@ $eqLogics = eqLogic::byType('husqvarna');
                 <form class="form-horizontal">
                      <fieldset style="border: 1px solid #e5e5e5; border-radius: 5px 5px 5px 5px;background-color:#f8f8f8">
                          <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
-                             <i style="font-size: initial;"></i> {{Statistiques d'utilisation}}
+                             <i style="font-size: initial;"></i> {{Statistiques d'utilisation sur cette période}}
                          </div>
                          <div id='div_hist_usage'></div>
 
@@ -83,7 +83,7 @@ $eqLogics = eqLogic::byType('husqvarna');
                          <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
                              <i style="font-size: initial;"></i> {{Configuration du robot}}
                          </div>
-                         <div id='div_hist_usage'></div>
+                         <div id='div_settings'></div>
                      </br>
                      </fieldset>
                      <div style="min-height: 10px;"></div>

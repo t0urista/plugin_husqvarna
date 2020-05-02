@@ -43,9 +43,7 @@ function get_mower_dt_log($ts_start, $ts_end)
       }
     }
   }
-
   fclose($flog);
-
   return;
 }
 
@@ -103,8 +101,8 @@ try {
     // Param 0 et 1 sont les timestamp de debut et fin de la periode de log demandée
     get_mower_dt_log(intval (init('param')[0]), intval (init('param')[1]));
     get_mower_dt_config();
+    //log::add('husqvarna', 'debug', 'get_mower_dt_log - Ajax: nb_elem='.count($mower_dt["log"]));
     $ret_json = json_encode ($mower_dt);
-    //log::add('husqvarna', 'debug', 'get_mower_dt_log - Ajax:'.$ret_json);
     ajax::success($ret_json);
   }
 

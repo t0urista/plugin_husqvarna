@@ -183,7 +183,46 @@ class husqvarna extends eqLogic {
             foreach( $this->getListeDefaultCommandes() as $id => $data)
             {
                 list($name, $type, $subtype, $unit, $invertBinary, $generic_type, $template_dashboard, $template_mobile, $listValue) = $data;
-                if (($type != "action") and ($id != "errorStatus"))
+                if ($id == "lastLocations") {
+                  $cmd = $this->getCmd(null, $id);
+                  // get state code value for logging
+                  $state_code = $session_husqvarna->get_state_code($status->{"mowerStatus"});
+                  // GPS logging done if mode is not PARKED, or every 5 mins
+                  if (($state_code != 3) or (($min%5)==0)) {                    
+                    // compute GPS position for each point on image
+                    $map_tl = $this->getConfiguration('gps_tl');
+                    $map_br = $this->getConfiguration('gps_br');
+                    $map_wd_ratio = $this->getConfiguration('img_wdg_ratio');
+                    $map_wd = round($this->getConfiguration('img_loc_width') * $map_wd_ratio/100);
+                    $map_he = round($this->getConfiguration('img_loc_height') * $map_wd_ratio/100);
+                    //log::add('husqvarna','debug',"Refresh DBG:image pos=".$map_tl." / ".$map_br);
+                    //log::add('husqvarna','debug',"Refresh DBG:image size=".$map_wd." / ".$map_he);
+                    list($map_t, $map_l) = explode(",", $map_tl);
+                    list($map_b, $map_r) = explode(",", $map_br);
+                    $lat_height = $map_b - $map_t;
+                    $lon_width  = $map_r - $map_l;
+                    $gps_pos = $map_wd.",".$map_he.'/';  // passe la taille de l'image au widget
+                    for ($i=0; $i<50; $i++) {
+                        $gps_lat = floatval($status->{$id}[$i]->{"latitude"});
+                        $gps_lon = floatval($status->{$id}[$i]->{"longitude"});
+                        if ($i == 0)
+                          $gps_log_dt = time().",".$state_code.",".$gps_lat.",".$gps_lon."\n";
+                        $xpos = round($map_wd * ($gps_lon-$map_l)/$lon_width);
+                        $ypos = round($map_he * ($gps_lat-$map_t)/$lat_height);
+                        $gps_pos = $gps_pos.$xpos.",".$ypos.'/';
+                    }
+                    log::add('husqvarna','debug',"Refresh DBG:Gps_pos=".$gps_pos);
+                    $cmd->event($gps_pos);
+                    // Log GPS position for statistics (if valid)
+                    if ($state_code != 99) {
+                      log::add('husqvarna','debug',"Refresh log recording Gps_dt=".$gps_log_dt);
+                      $log_fn = dirname(__FILE__).MOWER_LOG_FILE;
+                      file_put_contents($log_fn, $gps_log_dt, FILE_APPEND | LOCK_EX);
+                    }
+                  }
+                  
+                }
+                elseif (($type != "action") and ($id != "errorStatus"))
                 {
                     $cmd = $this->getCmd(null, $id);
                     // Values are stored if new or every 5 mins
@@ -193,42 +232,7 @@ class husqvarna extends eqLogic {
                         $cmd->setCollectDate('');
                         if ($unit  != "u" )
                         {
-                            if ($id == "lastLocations")
-                            {
-                                // get state code value for logging
-                                $state_code = $session_husqvarna->get_state_code($status->{"mowerStatus"});
-                                // compute GPS position for each point on image
-                                $map_tl = $this->getConfiguration('gps_tl');
-                                $map_br = $this->getConfiguration('gps_br');
-                                $map_wd_ratio = $this->getConfiguration('img_wdg_ratio');
-                                $map_wd = round($this->getConfiguration('img_loc_width') * $map_wd_ratio/100);
-                                $map_he = round($this->getConfiguration('img_loc_height') * $map_wd_ratio/100);
-                                log::add('husqvarna','debug',"Refresh DBG:image pos=".$map_tl." / ".$map_br);
-                                log::add('husqvarna','debug',"Refresh DBG:image size=".$map_wd." / ".$map_he);
-                                list($map_t, $map_l) = explode(",", $map_tl);
-                                list($map_b, $map_r) = explode(",", $map_br);
-                                $lat_height = $map_b - $map_t;
-                                $lon_width  = $map_r - $map_l;
-                                $gps_pos = $map_wd.",".$map_he.'/';  // passe la taille de l'image au widget
-                                for ($i=0; $i<50; $i++) {
-                                    $gps_lat = floatval($status->{$id}[$i]->{"latitude"});
-                                    $gps_lon = floatval($status->{$id}[$i]->{"longitude"});
-                                    if ($i == 0)
-                                      $gps_log_dt = time().",".$state_code.",".$gps_lat.",".$gps_lon."\n";
-                                    $xpos = round($map_wd * ($gps_lon-$map_l)/$lon_width);
-                                    $ypos = round($map_he * ($gps_lat-$map_t)/$lat_height);
-                                    $gps_pos = $gps_pos.$xpos.",".$ypos.'/';
-                                }
-                                log::add('husqvarna','debug',"Refresh DBG:Gps_pos=".$gps_pos);
-                                $cmd->event($gps_pos);
-                                // Log GPS position for statistics (if valid)
-                                if ($state_code != 99) {
-                                  log::add('husqvarna','debug',"Refresh DBG:mowerStatus=".$status->{"mowerStatus"}." / state code=".$state_code);
-                                  $log_fn = dirname(__FILE__).MOWER_LOG_FILE;
-                                  file_put_contents($log_fn, $gps_log_dt, FILE_APPEND | LOCK_EX);
-                                }
-                            }
-                            elseif ($id == "lastErrorCode")
+                            if ($id == "lastErrorCode")
                             {
                                 $error_code = $status->{$id};
                                 //log::add('husqvarna','debug',"Refresh DBG:error_code=".$error_code);

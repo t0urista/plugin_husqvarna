@@ -28,9 +28,8 @@ var STATE_OK_CHARGING    	             =  5;
 var STATE_PAUSED    	                 =  6; 
 var STATE_PARKED_AUTOTIMER    	       =  7; 
 var STATE_COMPLETED_CUTTING_TODAY_AUTO =  8; 
-var STATE_PARKED_TIMER    	           =  9; 
-var STATE_OK_CUTTING_NOT_AUTO          = 10;
-var STATE_OFF_HATCH_OPEN               = 11; 
+var STATE_OK_CUTTING_NOT_AUTO          =  9;
+var STATE_OFF_HATCH_OPEN               = 10; 
 
 // Variables partagées
 var mower_dtlog = [];
@@ -71,7 +70,7 @@ function loadData(){
                 $('#div_alert').showAlert({message: data.result, level: 'danger'});
                 return;
             }
-            dt_log = jQuery.parseJSON(data.result);
+            dt_log = JSON.parse(data.result);
             nb_dt = dt_log.log.length;
             //alert("getLogData:data nb="+nb_dt);
             // Capture les donnees de position
@@ -178,6 +177,16 @@ function draw_lines(mode_value) {
       
       }
     }
+    // trace cercle autour du dernier point (position courante) si moins de 2 mn
+    if (((Date.now()/1000)-dtlog_ts[i-1]) < 120) {
+      ctx.beginPath();
+      ctx.strokeStyle = 'GreenYellow';
+      ctx.globalAlpha = 1.0;
+      ctx.lineWidth = 4;
+      ctx.setLineDash([]);
+      ctx.arc(xpos,ypos, 8, 0, 2 * Math.PI);
+      ctx.stroke();      
+    }
 
 }
 
@@ -202,6 +211,11 @@ function stat_usage () {
   var nb_consecutive_cycle_charging = 0;
   var nb_consecutive_cycle_cutting = 0;
   
+  if (nb_pts <1) {
+    $("#div_hist_usage").empty();
+    $("#div_hist_usage").append("Pas de données");
+    return;
+  }
   // analyse des données
   tmp = mower_dtlog[0].split(',');
   prev_ts = tmp[0];  // time stamp
@@ -211,13 +225,13 @@ function stat_usage () {
     tmp = mower_dtlog[i].split(',');
     cur_ts = tmp[0];  // time stamp
     cur_st = tmp[1];  // state
-    if ((cur_st == STATE_OK_CHARGING)&&(prev_st == STATE_OK_CHARGING))
+    if (cur_st == STATE_OK_CHARGING)
       duration_charging += cur_ts - prev_ts;
-    if ((cur_st == STATE_OK_CUTTING)&&(prev_st == STATE_OK_CUTTING))
+    if (cur_st == STATE_OK_CUTTING)
       duration_cutting += cur_ts - prev_ts;
-    if ((cur_st == STATE_OK_SEARCHING)&&(prev_st == STATE_OK_SEARCHING))
+    if (cur_st == STATE_OK_SEARCHING)
       duration_searching += cur_ts - prev_ts;
-    if ((cur_st == STATE_OK_LEAVING)&&(prev_st == STATE_OK_LEAVING))
+    if (cur_st == STATE_OK_LEAVING)
       duration_leaving += cur_ts - prev_ts;
 
     if ((cur_st == STATE_OK_CHARGING)&&(prev_st == STATE_OK_CHARGING))
@@ -237,20 +251,21 @@ function stat_usage () {
     prev_ts = cur_ts;
     prev_st = cur_st;
   }
+  // calculs supplémentaires:
+  charging_mean_duration = duration_charging/nb_cycle_charging;
+  cutting_mean_duration = duration_cutting/nb_cycle_cutting;
   // Affichage des résultats dans le DIV:"div_hist_usage"
   $("#div_hist_usage").empty();
   $("#div_hist_usage").append("Temps de recharge: "+Math.round(duration_charging/60)+" mn<br>");
   $("#div_hist_usage").append("Temps de départ: "+Math.round(duration_leaving/60)+" mn<br>");
   $("#div_hist_usage").append("Temps de fonctionnement en coupe: "+Math.round(duration_cutting/60)+" mn<br>");
   $("#div_hist_usage").append("Temps de recherche: "+Math.round(duration_searching/60)+" mn<br><br>");
+  $("#div_hist_usage").append("Nombre de cycle de recharge: "+nb_cycle_charging+"<br>");
   $("#div_hist_usage").append("Nombre de cycle de coupe: "+nb_cycle_cutting+"<br>");
-  $("#div_hist_usage").append("Nombre de cycle de charge: "+nb_cycle_charging+"<br>");
+  $("#div_hist_usage").append("Durée moyenne des cycles de recharge: "+((nb_cycle_charging==0)?"--":Math.round(charging_mean_duration/60))+" mn<br>");
+  $("#div_hist_usage").append("Durée moyenne des cycles de coupe: "+((nb_cycle_cutting==0)?"--":Math.round(cutting_mean_duration/60))+" mn<br><br>");
   $("#div_hist_usage").append("(Nombre de points utilisés pour les statistiques: "+nb_pts+")<br>");
   
-   // provisoire
-  $("#div_settings").empty();
-  $("#div_settings").append("A venir...");
-
 }
 
 // gestion des radio buttons : mode d'historique
@@ -277,8 +292,102 @@ function rb_get_mode_value() {
   }
   
 }
-// gestion du bouton mise à jour de la période
-// ===========================================
+// gestion du bouton de definition et de mise à jour de la période 
+// ===============================================================
 $('#bt_validChangeDate').on('click',function(){
   loadData();
 });
+
+// Aujourd'hui
+$('#bt_per_today').on('click',function(){
+  $('#in_startDate').datepicker( "setDate", "+0" );
+  $('#in_endDate').datepicker( "setDate", "+1" );
+});
+// Hier
+$('#bt_per_yesterday').on('click',function(){
+  $('#in_startDate').datepicker( "setDate", "-1" );
+  $('#in_endDate').datepicker( "setDate", "+0" );
+});
+// Les 7 derniers jours
+$('#bt_per_last_week').on('click',function(){
+  $('#in_startDate').datepicker( "setDate", "-6" );
+  $('#in_endDate').datepicker( "setDate", "+1" );
+});
+// Tout
+$('#bt_per_all').on('click',function(){
+  $('#in_startDate').datepicker( "setDate", "-730" );  // - 2 ans
+  $('#in_endDate').datepicker( "setDate", "+1" );
+});
+
+// gestion du bouton get settings
+// ==============================
+$('#bt_getSettings').on('click',function(){
+  mower_get_settings();
+});
+
+
+// Interrogation du robot sur sa configuration
+// ===========================================
+function mower_get_settings(){
+    $.ajax({
+        type: 'POST',
+        url: 'plugins/husqvarna/core/ajax/husqvarna.ajax.php',
+        data: {
+            action: 'getSettings',
+            eqLogic_id: globalEqLogic
+        },
+        dataType: 'json',
+        error: function (request, status, error) {
+            alert("loadData:Error"+status+"/"+error);
+            handleAjaxError(request, status, error);
+        },
+        success: function (data) {
+            console.log("[loadData] Objet husqvarna récupéré : " + globalEqLogic);
+            if (data.state != 'ok') {
+                $('#div_alert').showAlert({message: data.result, level: 'danger'});
+                return;
+            }
+            dt_settings = JSON.parse(data.result);
+            nb_settings = dt_settings.length;
+            //alert("nb_settings="+nb_settings);
+            // Mise à jour des settings sur le DIV:"div_settings1&2&3"
+            $("#div_settings1").empty();
+            $("#div_settings2").empty();
+            $("#div_settings3").empty();
+            // section accessoires
+            $("#div_settings1").append("<b>Accessoires</b><br>");             
+            for (i=0; i<nb_settings; i++) {
+              if (dt_settings[i].includes("accessories"))
+                $("#div_settings1").append(dt_settings[i].replace("accessories.", "")+"<br>");                             
+            }
+            // section general
+            $("#div_settings1").append("<b>Général</b><br>");             
+            for (i=0; i<nb_settings; i++) {
+              if ((dt_settings[i].includes("general")) || dt_settings[i].includes("cuttingHeight"))
+                $("#div_settings1").append(dt_settings[i].replace("general.", "")+"<br>");                             
+            }
+            // section weatherTimer
+            $("#div_settings1").append("<b>Minuterie adaptative</b><br>");             
+            for (i=0; i<nb_settings; i++) {
+              if (dt_settings[i].includes("weatherTimer"))
+                $("#div_settings1").append(dt_settings[i].replace("weatherTimer.", "")+"<br>");                             
+            }
+            // sections installation area[i]
+            for (iarea=1; iarea<6;iarea++) {
+              var keyw = "installation.area"+iarea;
+              $("#div_settings2").append("<b>Installation zone"+iarea+"</b><br>");             
+              for (i=0; i<nb_settings; i++) {
+                if (dt_settings[i].includes(keyw))
+                  $("#div_settings2").append(dt_settings[i].replace(keyw+'.', "")+"<br>");                             
+              }
+            }
+            // section installation autres
+            $("#div_settings3").append("<b>Autres paramètres d'installation</b><br>");             
+            for (i=0; i<nb_settings; i++) {
+              if ((dt_settings[i].includes("installation")) && (dt_settings[i].split('.').length==2))
+                $("#div_settings3").append(dt_settings[i].replace("installation.", "")+"<br>");                             
+            }
+            
+        }
+    });
+}

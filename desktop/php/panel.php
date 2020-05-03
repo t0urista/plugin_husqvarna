@@ -37,7 +37,13 @@ $eqLogics = eqLogic::byType('husqvarna');
                   <br>
                   Fin : <input id="in_endDate" class="pull-right form-control input-sm in_datepicker" style="display : inline-block; width: 87px;" value="<?php echo $date['end']?>"/>
                   <br>
-                  <a style="margin-right:5px;" class="pull-right btn btn-success btn-sm tooltips" id='bt_validChangeDate' title="{{Attention une trop grande plage de dates peut mettre très longtemps à être calculée ou même ne pas s'afficher}}">{{Ok}}</a>
+                  <a style="margin-right:5px;" class="pull-right btn btn-success btn-sm tooltips" id='bt_validChangeDate' title="{{Misé à jour des données sur la période}}">{{Mise à jour période}}</a>
+                </div>
+                <div class="pull-left" style="padding-top:30px;padding-left:20px;min-height:150px;font-size: 1.5em;">
+                  <a style="margin-right:5px;" class="pull-left btn btn-info btn-sm tooltips" id='bt_per_today'>{{Aujourd'hui}}</a>
+                  <a style="margin-right:5px;" class="pull-left btn btn-info btn-sm tooltips" id='bt_per_yesterday'>{{Hier}}</a>
+                  <a style="margin-right:5px;" class="pull-left btn btn-info btn-sm tooltips" id='bt_per_last_week'>{{Les 7 derniers jours}}</a>
+                  <a style="margin-right:5px;" class="pull-left btn btn-info btn-sm tooltips" id='bt_per_all'>{{Tout}}</a>
                 </div>
               </fieldset>
             </form>
@@ -79,11 +85,14 @@ $eqLogics = eqLogic::byType('husqvarna');
                            </div>
                          </div>
                          </div>
-                         <div style="clear"></div>
+                         <div style="v"></div>
                          <div style="padding-top:10px;padding-left:24px;padding-bottom:10px;color: #333;font-size: 1.5em;">
                              <i style="font-size: initial;"></i> {{Configuration du robot}}
+                         <a style="margin-right:5px;" class="btn btn-success btn-sm tooltips" id='bt_getSettings' title="{{Obtenir la configuration du robot}}">{{Config Robot}}</a>
                          </div>
-                         <div id='div_settings'></div>
+                         <div class="pull-left" id='div_settings1'></div>
+                         <div class="pull-left" id='div_settings2'></div>
+                         <div class="pull-left" id='div_settings3'></div>
                      </br>
                      </fieldset>
                      <div style="min-height: 10px;"></div>

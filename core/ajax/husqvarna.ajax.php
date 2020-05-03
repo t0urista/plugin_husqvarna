@@ -16,6 +16,7 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 global $mower_dt;
+global $mower_settings;
 const MOWER_LOG_FILE = '/../../data/mower_log.txt';
 
 // ==========================================================
@@ -64,7 +65,7 @@ function get_mower_dt_config()
   $map_wr = $eqLogic->getConfiguration('img_wdg_ratio');
   $map_pr = $eqLogic->getConfiguration('img_pan_ratio');
 
-  // lecture des donnees
+  // formatage des donnees
   $mower_dt["config"] = [];
   $mower_dt["config"]["map_tl"] = $map_tl;
   $mower_dt["config"]["map_br"] = $map_br;
@@ -72,6 +73,42 @@ function get_mower_dt_config()
   $mower_dt["config"]["map_he"] = $map_he;
   $mower_dt["config"]["map_wr"] = $map_wr;
   $mower_dt["config"]["map_pr"] = $map_pr;
+
+  return;
+}
+
+// =================================================================
+// Fonction de recuperation des donnees de configurations du robot
+// =================================================================
+function get_mower_settings($eqLogic_id)
+{
+  global $mower_settings;
+  
+  // identification de l'objet eqLogic correspondant
+  $eqLogics = eqLogic::byType('husqvarna');
+	foreach ($eqLogics as $eqLogic) {
+    if ($eqLogic->getId() == $eqLogic_id) {
+      // Recuperation des parametres de configuration du robot à partir de son API
+      $session_husqvarna = new husqvarna_api();
+      $session_husqvarna->login(config::byKey('account', 'husqvarna'), config::byKey('password', 'husqvarna'));
+      if ($eqLogic->getIsEnable()) {
+        $settings = $session_husqvarna->get_settings($eqLogic->getLogicalId());
+        log::add('husqvarna','debug',"Get mower settings:".$eqLogic->getLogicalId());
+        $nb_settings = count($settings->{"settings"});
+        log::add('husqvarna','debug',"Get mower nb_settings:".$nb_settings);
+        $mower_settings = [];
+        for ($i=0; $i<$nb_settings; $i++) {
+          $id  = $settings->{"settings"}[$i]->{"id"};
+          $val = $settings->{"settings"}[$i]->{"value"};
+          $mower_settings[$i] = $id."=>".$val;
+        }
+        sort($mower_settings);
+        //foreach ($mower_settings as $val) {
+        //  log::add('husqvarna','debug',"Get mower settings:".$val);
+        //}
+      }
+    }
+  }
 
   return;
 }
@@ -95,7 +132,7 @@ try {
 		ajax::success($husqvarnaCmd);
     }
   else if (init('action') == 'getLogData') {
-    log::add('husqvarna', 'debug', 'get_mower_dt_log - Ajax:');
+    log::add('husqvarna', 'debug', 'get_mower_dt_log - Ajax:getLogData');
     //log::add('husqvarna', 'debug', 'param0:'.init('param')[0]);
     //log::add('husqvarna', 'debug', 'param1:'.init('param')[1]);
     // Param 0 et 1 sont les timestamp de debut et fin de la periode de log demandée
@@ -103,6 +140,15 @@ try {
     get_mower_dt_config();
     //log::add('husqvarna', 'debug', 'get_mower_dt_log - Ajax: nb_elem='.count($mower_dt["log"]));
     $ret_json = json_encode ($mower_dt);
+    ajax::success($ret_json);
+  }
+  else if (init('action') == 'getSettings') {
+    log::add('husqvarna', 'debug', 'get_mower_dt_log - Ajax:getSettings');
+    log::add('husqvarna', 'debug', 'get_mower_dt_log - Ajax:eqLogic_id:'.init('eqLogic_id'));
+    get_mower_settings(init('eqLogic_id'));
+    $ret_json = json_encode ($mower_settings);
+    //log::add('husqvarna', 'debug', 'get_mower_settings - Ajax: nb_elem='.count($mower_settings));
+    //log::add('husqvarna', 'debug', 'get_mower_settings - Ajax: ret_json='.$ret_json);
     ajax::success($ret_json);
   }
 

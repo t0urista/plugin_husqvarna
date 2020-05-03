@@ -67,9 +67,8 @@ class husqvarna_api {
    6 => "PAUSED",
    7 => "PARKED_AUTOTIMER",
    8 => "COMPLETED_CUTTING_TODAY_AUTO",
-   9 => "PARKED_TIMER",
-  10 => "OK_CUTTING_NOT_AUTO",
-  11 => "OFF_HATCH_OPEN"
+   9 => "OK_CUTTING_NOT_AUTO",
+  10 => "OFF_HATCH_OPEN"
   ];
 
 
@@ -190,18 +189,25 @@ class husqvarna_api {
 		return $list_robot;
 	}
 
+	// get status of mower
 	function get_status($mover_id)
-	{
-		
+	{		
 		return $this->get_api("mowers/".$mover_id."/status");
 	}
 
-	function get_geofence($mover_id)
-	{
-		
+	// get geofence information
+  function get_geofence($mover_id)
+	{		
 		return $this->get_api("mowers/".$mover_id."/geofence");
 	}
 
+	// get settings of mower
+	function get_settings($mover_id)
+	{		
+		return $this->get_api("mowers/".$mover_id."/settings");
+	}
+
+  // Send a command to mower
 	function control($mover_id, $command)
 	{
 		if ( in_array($command, array('PARK', 'STOP', 'START') ) )
@@ -210,11 +216,13 @@ class husqvarna_api {
 		}
 	}
   
+  // Return text for error code
   function get_error_code($code)
 	{
 		return $this->error_codes[$code];
 	}
 	
+  // Encoding of mower state
   function get_state_code($state)
 	{
 		foreach($this->state_codes as $st_idx => $data)

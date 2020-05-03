@@ -20,11 +20,6 @@
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 require_once dirname(__FILE__) . '/../../3rdparty/husqvarna_api.class.php';
 
-//const MAP_TL_LAT = 44.79974,-0.83752
-//const MAP_BR_LAT = 44.79933,-0.83692
-
-const MAP_WIDTH =  400;
-const MAP_HEIGHT=  394;
 const MOWER_LOG_FILE = '/../../data/mower_log.txt';
 const MOWER_IMG_FILE = '/../../ressources/maison.png';
 
@@ -188,15 +183,15 @@ class husqvarna extends eqLogic {
                   // get state code value for logging
                   $state_code = $session_husqvarna->get_state_code($status->{"mowerStatus"});
                   // GPS logging done if mode is not PARKED, or every 5 mins
-                  if (($state_code != 3) or (($min%5)==0)) {                    
+                  if (($state_code != 3) or (($min%5)==0)) {
                     // compute GPS position for each point on image
                     $map_tl = $this->getConfiguration('gps_tl');
                     $map_br = $this->getConfiguration('gps_br');
                     $map_wd_ratio = $this->getConfiguration('img_wdg_ratio');
                     $map_wd = round($this->getConfiguration('img_loc_width') * $map_wd_ratio/100);
                     $map_he = round($this->getConfiguration('img_loc_height') * $map_wd_ratio/100);
-                    //log::add('husqvarna','debug',"Refresh DBG:image pos=".$map_tl." / ".$map_br);
-                    //log::add('husqvarna','debug',"Refresh DBG:image size=".$map_wd." / ".$map_he);
+                    log::add('husqvarna','debug',"Refresh DBG:image pos=".$map_tl." / ".$map_br);
+                    log::add('husqvarna','debug',"Refresh DBG:image size=".$map_wd." / ".$map_he);
                     list($map_t, $map_l) = explode(",", $map_tl);
                     list($map_b, $map_r) = explode(",", $map_br);
                     $lat_height = $map_b - $map_t;
@@ -205,6 +200,7 @@ class husqvarna extends eqLogic {
                     for ($i=0; $i<50; $i++) {
                         $gps_lat = floatval($status->{$id}[$i]->{"latitude"});
                         $gps_lon = floatval($status->{$id}[$i]->{"longitude"});
+                        log::add('husqvarna','debug',"Refresh log recording Gps_dt=".$gps_lat." / ".$gps_lon);
                         if ($i == 0)
                           $gps_log_dt = time().",".$state_code.",".$gps_lat.",".$gps_lon."\n";
                         $xpos = round($map_wd * ($gps_lon-$map_l)/$lon_width);

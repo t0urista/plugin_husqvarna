@@ -158,6 +158,18 @@ class husqvarna extends eqLogic {
     public function preRemove() {
     }
 
+    // Fonctions pour gestion de la planification
+    // Convertion des éléments d'une plage horaire vers une chaine de caractères
+//    public time_slot_to_string($ts_begin, $ts_end, $ts_enable, $ts_zone) {
+//      
+//    }
+    // Convertion d'une chaine de caractères vers les éléments d'une plage horaire
+//    public string_to_time_slot($ts_str,) {
+//      
+//       $ts_begin, $ts_end
+//      
+//    }
+
     public static function pull() {
         if ( config::byKey('account', 'husqvarna') != "" || config::byKey('password', 'husqvarna') != "" )
         {

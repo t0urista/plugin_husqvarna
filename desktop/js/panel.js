@@ -282,7 +282,7 @@ function update_GPS_History(e) {
 }
 
 function rb_get_mode_value() {
-  var rb_list = document.getElementsByName('hist_mode');;
+  var rb_list = document.getElementsByName('hist_mode');
   //alert(rb_list.length);
   for (i=0; i<rb_list.length; i++) {
     if (rb_list[i].checked == true) {
@@ -290,8 +290,8 @@ function rb_get_mode_value() {
       return rb_list[i].value;
     }
   }
-  
 }
+
 // gestion du bouton de definition et de mise à jour de la période 
 // ===============================================================
 $('#bt_validChangeDate').on('click',function(){

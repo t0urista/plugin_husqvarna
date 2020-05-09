@@ -203,7 +203,6 @@ sendVarToJS('eqType', 'husqvarna');
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1s_p'>{{+}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="lun_ts1_begin"/>                              
                               <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1s_m'>{{-}}</a>
-
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1e_p'>{{+}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="lun_ts1_end"/>
                               <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1e_m'>{{-}}</a>

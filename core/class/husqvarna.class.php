@@ -22,6 +22,14 @@ require_once dirname(__FILE__) . '/../../3rdparty/husqvarna_api.class.php';
 
 const MOWER_LOG_FILE = '/../../data/mower_log.txt';
 const MOWER_IMG_FILE = '/../../ressources/maison.png';
+const DAY_NAMES = ["dim","lun","mar","mer","jeu","ven","sam"];
+
+// etats du mode de planification
+const MDPLN_IDLE = "Repos";
+const MDPLN_ACT1 = "Actif plage 1";
+const MDPLN_ACT2 = "Actif plage 2";
+const MDPLN_WPARKED = "Attente retour base";
+
 
 class husqvarna extends eqLogic {
     /*     * *************************Attributs****************************** */
@@ -80,6 +88,7 @@ class husqvarna extends eqLogic {
                         "nextStartTimestamp" => array('Heure prochain départ', 'info', 'string', "u", 0, "GENERIC_INFO", 'badge', 'badge', ''),
                         "storedTimestamp" => array('Heure dernier rapport', 'info', 'string', "u", 0, "GENERIC_INFO", 'badge', 'badge', ''),
                         "errorStatus" => array('Statut erreur', 'info', 'string', "", 0, "GENERIC_INFO", 'badge', 'badge', ''),
+                        "planning_mode" => array('Mode courant planification', 'info', 'string', "", 0, "GENERIC_INFO", 'badge', 'badge', ''),
                         "lastLocations" => array('Position GPS', 'info', 'string', "", 0, "GENERIC_INFO", 'badge', 'badge', '')
         );
     }
@@ -158,18 +167,7 @@ class husqvarna extends eqLogic {
     public function preRemove() {
     }
 
-    // Fonctions pour gestion de la planification
-    // Convertion des éléments d'une plage horaire vers une chaine de caractères
-//    public time_slot_to_string($ts_begin, $ts_end, $ts_enable, $ts_zone) {
-//      
-//    }
-    // Convertion d'une chaine de caractères vers les éléments d'une plage horaire
-//    public string_to_time_slot($ts_str,) {
-//      
-//       $ts_begin, $ts_end
-//      
-//    }
-
+    // Fonction appelée au rythme de 1 mn
     public static function pull() {
         if ( config::byKey('account', 'husqvarna') != "" || config::byKey('password', 'husqvarna') != "" )
         {
@@ -180,10 +178,32 @@ class husqvarna extends eqLogic {
         }
     }
 
+    // Fonction de configuration de la zone de tonte (1 ou 2)
+    public function set_zone($zone) {
+      if ($zone == 1) {
+        $cmd_zn = cmd::byId(str_replace('#', '', $this->getConfiguration('cmd_set_zone_1')));
+        if (is_object(!$cmd_zn)) {
+          throw new Exception(__('Impossible de trouver la commande Set Zone1', __FILE__));
+        }
+        $cmd_zn->execCmd();
+        log::add('husqvarna','debug',"Activation de la zone 1. (".$cmd_zn->getHumanName().")");
+      }
+      elseif ($zone == 2) {
+        $cmd_zn = cmd::byId(str_replace('#', '', $this->getConfiguration('cmd_set_zone_2')));
+        if (is_object(!$cmd_zn)) {
+          throw new Exception(__('Impossible de trouver la commande Set Zone2', __FILE__));
+        }
+        $cmd_zn->execCmd();
+        log::add('husqvarna','debug',"Activation de la zone 2. (".$cmd_zn->getHumanName().")");
+      }
+    }
+
     public function scan() {
         $session_husqvarna = new husqvarna_api();
         $session_husqvarna->login(config::byKey('account', 'husqvarna'), config::byKey('password', 'husqvarna'));
-        if ( $this->getIsEnable() ) {
+        if ($this->getIsEnable()) {
+            // mise à jour des infos du plugin et historique GPS
+            // =================================================
             $status = $session_husqvarna->get_status($this->getLogicalId());
             log::add('husqvarna','debug',"Refresh Status ".$this->getLogicalId());
             $min = intval(date('i'));
@@ -202,8 +222,8 @@ class husqvarna extends eqLogic {
                     $map_wd_ratio = $this->getConfiguration('img_wdg_ratio');
                     $map_wd = round($this->getConfiguration('img_loc_width') * $map_wd_ratio/100);
                     $map_he = round($this->getConfiguration('img_loc_height') * $map_wd_ratio/100);
-                    log::add('husqvarna','debug',"Refresh DBG:image pos=".$map_tl." / ".$map_br);
-                    log::add('husqvarna','debug',"Refresh DBG:image size=".$map_wd." / ".$map_he);
+                    //log::add('husqvarna','debug',"Refresh DBG:image pos=".$map_tl." / ".$map_br);
+                    //log::add('husqvarna','debug',"Refresh DBG:image size=".$map_wd." / ".$map_he);
                     list($map_t, $map_l) = explode(",", $map_tl);
                     list($map_b, $map_r) = explode(",", $map_br);
                     $lat_height = $map_b - $map_t;
@@ -212,25 +232,24 @@ class husqvarna extends eqLogic {
                     for ($i=0; $i<50; $i++) {
                         $gps_lat = floatval($status->{$id}[$i]->{"latitude"});
                         $gps_lon = floatval($status->{$id}[$i]->{"longitude"});
-                        log::add('husqvarna','debug',"Refresh log recording Gps_dt=".$gps_lat." / ".$gps_lon);
                         if ($i == 0)
                           $gps_log_dt = time().",".$state_code.",".$gps_lat.",".$gps_lon."\n";
                         $xpos = round($map_wd * ($gps_lon-$map_l)/$lon_width);
                         $ypos = round($map_he * ($gps_lat-$map_t)/$lat_height);
                         $gps_pos = $gps_pos.$xpos.",".$ypos.'/';
                     }
-                    log::add('husqvarna','debug',"Refresh DBG:Gps_pos=".$gps_pos);
+                    //log::add('husqvarna','debug',"Refresh DBG:Gps_pos=".$gps_pos);
                     $cmd->event($gps_pos);
                     // Log GPS position for statistics (if valid)
                     if ($state_code != 99) {
-                      log::add('husqvarna','debug',"Refresh log recording Gps_dt=".$gps_log_dt);
+                      //log::add('husqvarna','debug',"Refresh log recording Gps_dt=".$gps_log_dt);
                       $log_fn = dirname(__FILE__).MOWER_LOG_FILE;
                       file_put_contents($log_fn, $gps_log_dt, FILE_APPEND | LOCK_EX);
                     }
                   }
                   
                 }
-                elseif (($type != "action") and ($id != "errorStatus"))
+                elseif (($type != "action") and ($id != "errorStatus") and ($id != "planning_mode"))
                 {
                     $cmd = $this->getCmd(null, $id);
                     // Values are stored if new or every 5 mins
@@ -266,6 +285,101 @@ class husqvarna extends eqLogic {
                     }
                 }
             }
+            // Gestion de la planification du robot
+            // ====================================
+            // recuperation de la definition des plages horaires
+            $day = DAY_NAMES[intval(date("w"))];
+            $pl_start = $day."_ts1_begin";
+            $pl_end   = $day."_ts1_end";
+            $pl_zone  = $day."_ts1_zone";
+            $pl_enable= $day."_en_ts1";
+            $pl1_ts = $this->getConfiguration($pl_start);
+            $pl1_te = $this->getConfiguration($pl_end);
+            list($hr,$mn) = explode(":", $pl1_ts);
+            $pl1_ts = intval($hr*60)+intval($mn);
+            list($hr,$mn) = explode(":", $pl1_te);
+            $pl1_te = intval($hr*60)+intval($mn);
+            $pl1_zn = intval($this->getConfiguration($pl_zone));
+            $pl1_en = intval($this->getConfiguration($pl_enable));
+            log::add('husqvarna','debug',"Planing: plage1=".$pl1_ts."/".$pl1_te."/".$pl1_zn."/".$pl1_en);
+            $pl_start = str_replace("1", "2", $pl_start);
+            $pl_end   = str_replace("1", "2", $pl_end);
+            $pl_zone  = str_replace("1", "2", $pl_zone);
+            $pl_enable= str_replace("1", "2", $pl_enable);
+            $pl2_ts = $this->getConfiguration($pl_start);
+            $pl2_te = $this->getConfiguration($pl_end);
+            list($hr,$mn) = explode(":", $pl2_ts);
+            $pl2_ts = intval($hr*60)+intval($mn);
+            list($hr,$mn) = explode(":", $pl2_te);
+            $pl2_te = intval($hr*60)+intval($mn);
+            $pl2_zn = intval($this->getConfiguration($pl_zone));
+            $pl2_en = intval($this->getConfiguration($pl_enable));
+            log::add('husqvarna','debug',"Planing: plage2=".$pl2_ts."/".$pl2_te."/".$pl2_zn."/".$pl2_en);
+            // gestion de la panification du robot
+            $planning_mode_cmd = $this->getCmd(null, "planning_mode");
+            $pln_mode = $planning_mode_cmd->execCmd();
+            $mode_changed = 0;
+            list($hr,$mn) = explode(":",date("G:i"));
+            $cur_hm = intval($hr*60)+intval($mn);
+            log::add('husqvarna','debug',"Planing: planning_mode=".$pln_mode."/Heure courante:".$cur_hm);
+            if ($pln_mode == "") {
+              $pln_mode = MDPLN_IDLE;
+              $mode_changed = 1;
+            }
+            else {
+              switch ($pln_mode) {
+                case MDPLN_IDLE: // mode repos (en attente d'une plage horaire active)
+                    if (($pl1_en == 1) and ($cur_hm>=$pl1_ts) and ($cur_hm<$pl1_te)) {
+                      $pln_mode = MDPLN_ACT1;
+                      $mode_changed = 1;
+                      // Sélection de la zone choisie
+                      $this->set_zone($pl1_zn);
+                      // départ tondeuse sur plage horaire 1
+                      $order = $session_husqvarna->control($this->getLogicalId(), 'START');
+                      log::add('husqvarna','info',"Départ tonte sur plage horaire 1. (Ret=".$order->status.")");
+                    }
+                    elseif (($pl2_en == 1) and ($cur_hm>=$pl2_ts) and ($cur_hm<$pl2_te)) {
+                      $pln_mode = MDPLN_ACT2;
+                      $mode_changed = 1;
+                      // Sélection de la zone choisie
+                      $this->set_zone($pl2_zn);
+                      // départ tondeuse sur plage horaire 2
+                      $order = $session_husqvarna->control($this->getLogicalId(), 'START');
+                      log::add('husqvarna','info',"Départ tonte sur plage horaire 2. (Ret=".$order->status.")");
+                    }
+                    break;
+                case MDPLN_ACT1: // Robot en action sur la plage horaire 1
+                    if (($pl1_en == 1) and ($cur_hm>$pl1_te)) {
+                      $pln_mode = MDPLN_WPARKED;
+                      $mode_changed = 1;
+                      // Park de la tondeuse
+                      $order = $session_husqvarna->control($this->getLogicalId(), 'PARK');
+                      log::add('husqvarna','info',"Fin de tonte sur plage horaire 1. (Ret=".$order->status.")");
+                    }
+                    break;
+                case MDPLN_ACT2: // Robot en action sur la plage horaire 2
+                    if (($pl2_en == 1) and ($cur_hm>$pl2_te)) {
+                      $pln_mode = MDPLN_WPARKED;
+                      $mode_changed = 1;
+                      // Park de la tondeuse
+                      $order = $session_husqvarna->control($this->getLogicalId(), 'PARK');
+                      log::add('husqvarna','info',"Fin de tonte sur plage horaire 2. (Ret=".$order->status.")");
+                    }
+                    break;
+                case MDPLN_WPARKED: // Attente retour base
+                    if ($state_code == 3) {
+                      $pln_mode = MDPLN_IDLE;
+                      $mode_changed = 1;
+                      $this->set_zone(1);  // Mise au repot du sélecteur de zone
+                      log::add('husqvarna','info',"Robot rentré à la base. (state_code=".$state_code.")");
+                    }
+                    break;
+              }
+            }
+            if ($mode_changed == 1) {
+              $planning_mode_cmd->event($pln_mode);              
+            }
+
         }
         $session_husqvarna->logOut();
     }

@@ -78,26 +78,31 @@ class husqvarna extends eqLogic {
 
     private function getListeDefaultCommandes()
     {
-        return array(   "batteryPercent" => array('Batterie', 'info', 'numeric', "%", 0, "GENERIC_INFO", 'badge', 'badge', ''),
-                        "connected" => array('Connecté', 'info', 'binary', "", 0, "GENERIC_INFO", 'alert', 'alert', ''),
-                        "mowerStatus" => array('Etat robot', 'info', 'string', "", 0, "GENERIC_INFO", 'badge', 'badge', ''),
-                        "operatingMode" => array('Mode de fonctionnement', 'info', 'string', "", 0, "GENERIC_INFO", 'badge', 'badge', ''),
-                        "lastErrorCode" => array('Dernier code erreur', 'info', 'numeric', "", 0, "GENERIC_INFO", 'badge', 'badge', ''),
-                        "commande" => array('Commande', 'action', 'select', "", 0, "GENERIC_ACTION", '', '', 'START|'.__('Démarrer',__FILE__).';STOP|'.__('Arrêter',__FILE__).';PARK|'.__('Ranger',__FILE__)),
-                        "nextStartSource" => array('Prochain départ', 'info', 'string', "", 0, "GENERIC_INFO", 'badge', 'badge', ''),
-                        "nextStartTimestamp" => array('Heure prochain départ', 'info', 'string', "u", 0, "GENERIC_INFO", 'badge', 'badge', ''),
-                        "storedTimestamp" => array('Heure dernier rapport', 'info', 'string', "u", 0, "GENERIC_INFO", 'badge', 'badge', ''),
-                        "errorStatus" => array('Statut erreur', 'info', 'string', "", 0, "GENERIC_INFO", 'badge', 'badge', ''),
-                        "planning_mode" => array('Mode courant planification', 'info', 'string', "", 0, "GENERIC_INFO", 'badge', 'badge', ''),
-                        "lastLocations" => array('Position GPS', 'info', 'string', "", 0, "GENERIC_INFO", 'badge', 'badge', '')
+        return array( "batteryPercent"     => array('Batterie',               'h', 'info',  'numeric', "%", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "connected"          => array('Connecté',               'h', 'info',  'binary',   "", 0, "GENERIC_INFO",   'core::alert', 'core::alert', ''),
+                      "lastErrorCode"      => array('Code erreur',            'h', 'info',  'numeric',  "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "commande"           => array('Commande',               'h', 'action','select',   "", 0, "GENERIC_ACTION", '',      '',      'START|'.__('Démarrer',__FILE__).';STOP|'.__('Arrêter',__FILE__).';PARK|'.__('Ranger',__FILE__)),
+                      "mowerStatus"        => array('Etat robot',             'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "operatingMode"      => array('Mode de fonctionnement', 'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "nextStartSource"    => array('Prochain départ',        'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "nextStartTimestamp" => array('Heure prochain départ',  'h', 'info',  'string',  "u", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "storedTimestamp"    => array('Heure dernier rapport',  'h', 'info',  'string',  "u", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "errorStatus"        => array('Statut erreur',          'p', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "planning_en"        => array('Planification cmd',      'p', 'action','other',    "", 0, "GENERIC_ACTION", 'custom::IconActionNt', 'custom::IconActionNt',      ''),
+                      "planning_activ"     => array('Planification',          'p', 'info',  'binary',   "", 0, "GENERIC_INFO",   'core::alert', 'core::alert', ''),
+                      "planning_state"     => array('Etat planification',     'p', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "meteo_en"           => array('Météo cmd',              'p', 'action','other',    "", 0, "GENERIC_ACTION", 'custom::IconActionNt', 'custom::IconActionNt',      ''),
+                      "meteo_activ"        => array('Météo',                  'p', 'info',  'binary',   "", 0, "GENERIC_INFO",   'core::alert', 'core::alert', ''),
+                      "lastLocations"      => array('Position GPS',           'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'customtemp::maps_husqvarna', 'customtemp::maps_husqvarna', '')
         );
     }
 
-    public function postUpdate()
+    //public function postUpdate()
+    public function postSave()
     {
         foreach( $this->getListeDefaultCommandes() as $id => $data)
         {
-            list($name, $type, $subtype, $unit, $invertBinary, $generic_type, $template_dashboard, $template_mobile, $listValue) = $data;
+            list($name, $husqcmd, $type, $subtype, $unit, $invertBinary, $generic_type, $template_dashboard, $template_mobile, $listValue) = $data;
             $cmd = $this->getCmd(null, $id);
             if ( ! is_object($cmd) ) {
                 $cmd = new husqvarnaCmd();
@@ -134,11 +139,11 @@ class husqvarna extends eqLogic {
                 {
                     $cmd->setDisplay('generic_type', $generic_type);
                 }
-                if ( $cmd->getDisplay('dashboard') == "" )
+                if ( $cmd->getTemplate('dashboard') == "" )
                 {
                     $cmd->setTemplate('dashboard', $template_dashboard);
                 }
-                if ( $cmd->getDisplay('mobile') == "" )
+                if ( $cmd->getTemplate('mobile') == "" )
                 {
                     $cmd->setTemplate('mobile', $template_mobile);
                 }
@@ -161,6 +166,19 @@ class husqvarna extends eqLogic {
       $refresh->setType('action');
       $refresh->setSubType('other');
       $refresh->save();
+      // Couplage des commandes et info "planning_en" et "meteo_en"
+      $cmd_act = $this->getCmd(null, 'planning_en');
+      $cmd_inf = $this->getCmd(null, 'planning_activ');
+      if ((is_object($cmd_act)) and (is_object($cmd_inf))) {
+        $cmd_act->setValue($cmd_inf->getid());
+        $cmd_act->save();
+      }
+      $cmd_act = $this->getCmd(null, 'meteo_en');
+      $cmd_inf = $this->getCmd(null, 'meteo_activ');
+      if ((is_object($cmd_act)) and (is_object($cmd_inf))) {
+        $cmd_act->setValue($cmd_inf->getid());
+        $cmd_act->save();
+      }
       
     }
 
@@ -209,7 +227,7 @@ class husqvarna extends eqLogic {
             $min = intval(date('i'));
             foreach( $this->getListeDefaultCommandes() as $id => $data)
             {
-                list($name, $type, $subtype, $unit, $invertBinary, $generic_type, $template_dashboard, $template_mobile, $listValue) = $data;
+                list($name, $husqcmd, $type, $subtype, $unit, $invertBinary, $generic_type, $template_dashboard, $template_mobile, $listValue) = $data;
                 if ($id == "lastLocations") {
                   $cmd = $this->getCmd(null, $id);
                   // get state code value for logging
@@ -249,7 +267,7 @@ class husqvarna extends eqLogic {
                   }
                   
                 }
-                elseif (($type != "action") and ($id != "errorStatus") and ($id != "planning_mode"))
+                elseif (($type != "action") and ($husqcmd != "p"))
                 {
                     $cmd = $this->getCmd(null, $id);
                     // Values are stored if new or every 5 mins
@@ -287,6 +305,13 @@ class husqvarna extends eqLogic {
             }
             // Gestion de la planification du robot
             // ====================================
+            // recuperation des parametres de planification
+            $cmd = $this->getCmd(null, 'planning_activ');
+            $pl_on = $cmd->execCmd();
+            $cmd = $this->getCmd(null, 'meteo_activ');
+            $pl_meteo = $cmd->execCmd();
+            $multizone = $this->getConfiguration("enable_2_areas");
+
             // recuperation de la definition des plages horaires
             $day = DAY_NAMES[intval(date("w"))];
             $pl_start = $day."_ts1_begin";
@@ -316,41 +341,45 @@ class husqvarna extends eqLogic {
             $pl2_en = intval($this->getConfiguration($pl_enable));
             log::add('husqvarna','debug',"Planing: plage2=".$pl2_ts."/".$pl2_te."/".$pl2_zn."/".$pl2_en);
             // gestion de la panification du robot
-            $planning_mode_cmd = $this->getCmd(null, "planning_mode");
-            $pln_mode = $planning_mode_cmd->execCmd();
+            $planning_state_cmd = $this->getCmd(null, "planning_state");
+            $pln_state = $planning_state_cmd->execCmd();
             $mode_changed = 0;
             list($hr,$mn) = explode(":",date("G:i"));
             $cur_hm = intval($hr*60)+intval($mn);
-            log::add('husqvarna','debug',"Planing: planning_mode=".$pln_mode."/Heure courante:".$cur_hm);
-            if ($pln_mode == "") {
-              $pln_mode = MDPLN_IDLE;
+            log::add('husqvarna','debug',"Planing: planning_state=".$pln_state."/Heure courante:".$cur_hm);
+            if ($pln_state == "") {
+              $pln_state = MDPLN_IDLE;
               $mode_changed = 1;
             }
             else {
-              switch ($pln_mode) {
+              switch ($pln_state) {
                 case MDPLN_IDLE: // mode repos (en attente d'une plage horaire active)
-                    if (($pl1_en == 1) and ($cur_hm>=$pl1_ts) and ($cur_hm<$pl1_te)) {
-                      $pln_mode = MDPLN_ACT1;
+                    if (($pl_on == 1) and ($pl1_en == 1) and ($cur_hm>=$pl1_ts) and ($cur_hm<$pl1_te)) {
+                      $pln_state = MDPLN_ACT1;
                       $mode_changed = 1;
                       // Sélection de la zone choisie
-                      $this->set_zone($pl1_zn);
+                      if ($multizone == 1) {
+                        $this->set_zone($pl1_zn);
+                      }
                       // départ tondeuse sur plage horaire 1
                       $order = $session_husqvarna->control($this->getLogicalId(), 'START');
                       log::add('husqvarna','info',"Départ tonte sur plage horaire 1. (Ret=".$order->status.")");
                     }
-                    elseif (($pl2_en == 1) and ($cur_hm>=$pl2_ts) and ($cur_hm<$pl2_te)) {
-                      $pln_mode = MDPLN_ACT2;
+                    elseif (($pl_on == 1) and ($pl2_en == 1) and ($cur_hm>=$pl2_ts) and ($cur_hm<$pl2_te)) {
+                      $pln_state = MDPLN_ACT2;
                       $mode_changed = 1;
                       // Sélection de la zone choisie
-                      $this->set_zone($pl2_zn);
+                      if ($multizone == 1) {
+                        $this->set_zone($pl2_zn);
+                      }
                       // départ tondeuse sur plage horaire 2
                       $order = $session_husqvarna->control($this->getLogicalId(), 'START');
                       log::add('husqvarna','info',"Départ tonte sur plage horaire 2. (Ret=".$order->status.")");
                     }
                     break;
                 case MDPLN_ACT1: // Robot en action sur la plage horaire 1
-                    if (($pl1_en == 1) and ($cur_hm>$pl1_te)) {
-                      $pln_mode = MDPLN_WPARKED;
+                    if ((($pl1_en == 1) and ($cur_hm>$pl1_te)) or ($pl_on == 0)) {
+                      $pln_state = MDPLN_WPARKED;
                       $mode_changed = 1;
                       // Park de la tondeuse
                       $order = $session_husqvarna->control($this->getLogicalId(), 'PARK');
@@ -358,8 +387,8 @@ class husqvarna extends eqLogic {
                     }
                     break;
                 case MDPLN_ACT2: // Robot en action sur la plage horaire 2
-                    if (($pl2_en == 1) and ($cur_hm>$pl2_te)) {
-                      $pln_mode = MDPLN_WPARKED;
+                    if ((($pl2_en == 1) and ($cur_hm>$pl2_te)) or ($pl_on == 0)) {
+                      $pln_state = MDPLN_WPARKED;
                       $mode_changed = 1;
                       // Park de la tondeuse
                       $order = $session_husqvarna->control($this->getLogicalId(), 'PARK');
@@ -368,16 +397,18 @@ class husqvarna extends eqLogic {
                     break;
                 case MDPLN_WPARKED: // Attente retour base
                     if ($state_code == 3) {
-                      $pln_mode = MDPLN_IDLE;
+                      $pln_state = MDPLN_IDLE;
                       $mode_changed = 1;
-                      $this->set_zone(1);  // Mise au repot du sélecteur de zone
+                      if ($multizone == 1) {
+                        $this->set_zone(1);  // Mise au repot du sélecteur de zone
+                      }
                       log::add('husqvarna','info',"Robot rentré à la base. (state_code=".$state_code.")");
                     }
                     break;
               }
             }
             if ($mode_changed == 1) {
-              $planning_mode_cmd->event($pln_mode);              
+              $planning_state_cmd->event($pln_state);              
             }
 
         }
@@ -404,6 +435,29 @@ class husqvarnaCmd extends cmd
           log::add('husqvarna','info',"Refresh data");
           husqvarna::pull();
         }
+        elseif ( $this->getLogicalId() == 'planning_en')
+        {
+          $eqLogic = $this->getEqLogic();
+          $cmd_ret = $eqLogic->getCmd(null, 'planning_activ');
+          if (is_object($cmd_ret)) {
+            $value = $cmd_ret->execCmd();
+            $cmd_ret->setCollectDate('');
+            $cmd_ret->event($value xor 1);
+          }
+
+        }
+        elseif ( $this->getLogicalId() == 'meteo_en')
+        {
+          $eqLogic = $this->getEqLogic();
+          $cmd_ret = $eqLogic->getCmd(null, 'meteo_activ');
+          if (is_object($cmd_ret)) {
+            $value = $cmd_ret->execCmd();
+            $cmd_ret->setCollectDate('');
+            $cmd_ret->event($value xor 1);
+          }
+
+        }
+        
     }
 
 

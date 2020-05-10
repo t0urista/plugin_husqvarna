@@ -1,6 +1,13 @@
+// Gestion des listes de commandes action ou commandes info
 $(".listCmdActionOther").on('click', function () {
   var el = $(this);
   jeedom.cmd.getSelectModal({cmd: {type: 'action',subType : 'other'}}, function (result) {
+    el.closest('.input-group').find('input').value(result.human);
+  });
+});
+$(".listCmdInfoOther").on('click', function () {
+  var el = $(this);
+  jeedom.cmd.getSelectModal({cmd: {type: 'info',subType : 'other'}}, function (result) {
     el.closest('.input-group').find('input').value(result.human);
   });
 });

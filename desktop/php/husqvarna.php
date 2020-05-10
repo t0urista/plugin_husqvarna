@@ -178,45 +178,57 @@ sendVarToJS('eqType', 'husqvarna');
                               <input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="zone1_ratio" placeholder="50%"/>
                             </div>
                         </div>
+                        <legend>{{Utilisation de la météo}}</legend>
+                        <div class="form-group">
+                          <label class="col-sm-3 control-label" >{{Information de pluie dans l'heure}}</label>
+                          <div class="col-sm-4">
+                            <div class="input-group">
+                              <input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="info_pluie"/>
+                              <span class="input-group-btn">
+                                <a class="btn btn-default listCmdInfoOther roundedRight"><i class="fas fa-list-alt"></i></a>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                         <legend>{{Calendrier de fonctionnement}}</legend>
                         <div class="form-group" style="text-align:center">
                             <label class="col-sm-3 control-label"></label>
-                            <div class="col-md-4" style="background-color:#303030">
+                            <div class="col-md-4 form-control">
                               <label class="control-label" style="min-width:80px">{{Plage horaire 1}}</label>
                             </div>
-                            <div class="col-md-4" style="background-color:#303030">
+                            <div class="col-md-4 form-control">
                               <label class="control-label" style="min-width:80px">{{Plage horaire 2}}</label>
                             </div>
                         </div>
                         <div class="form-group" style="text-align:center">
                             <label class="col-sm-3 control-label" ></label>
-                            <div class="col-md-4" style="background-color:#303030">
+                            <div class="col-md-4 form-control">
                               <label class="control-label" style="min-width:80px;">{{Début - Fin - Active - Zone 1 / 2 / 3(Alt)}}</label>
                             </div>
-                            <div class="col-md-4" style="background-color:#303030">
+                            <div class="col-md-4 form-control">
                               <label class="control-label" style="min-width:80px;">{{Début - Fin - Active - Zone 1 / 2 / 3(Alt)}}</label>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label" >{{Lundi}}</label>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="lun_ts1_begin"/>                              
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="lun_ts1_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl1e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="lun_en_ts1" checked/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="lun_ts1_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_zn1_p'>{{+}}</a>
                             </div>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl2s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="lun_ts2_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl2s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl2e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl2e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="lun_ts2_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl2e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_pl2e_p'>{{+}}</a>
                               <input type="checkbox"  class="eqLogicAttr" data-l1key="configuration" data-l2key="lun_en_ts2" />
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="lun_ts2_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_lun_zn2_p'>{{+}}</a>
@@ -225,23 +237,23 @@ sendVarToJS('eqType', 'husqvarna');
                         <div class="form-group">
                             <label class="col-sm-3 control-label" >{{Mardi}}</label>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl1s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mar_ts1_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl1s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl1e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl1e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mar_ts1_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl1e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl1e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="mar_en_ts1" checked/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mar_ts1_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_zn1_p'>{{+}}</a>
                             </div>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl2s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mar_ts2_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl2s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl2e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl2e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mar_ts2_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl2e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_pl2e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="mar_en_ts2"/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mar_ts2_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mar_zn2_p'>{{+}}</a>
@@ -250,23 +262,23 @@ sendVarToJS('eqType', 'husqvarna');
                         <div class="form-group">
                             <label class="col-sm-3 control-label" >{{Mercredi}}</label>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl1s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mer_ts1_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl1s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl1e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl1e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mer_ts1_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl1e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl1e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="mer_en_ts1" checked/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mer_ts1_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_zn1_p'>{{+}}</a>
                             </div>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl2s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mer_ts2_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl2s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl2e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl2e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mer_ts2_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl2e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_pl2e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="mer_en_ts2"/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="mer_ts2_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_mer_zn2_p'>{{+}}</a>
@@ -275,23 +287,23 @@ sendVarToJS('eqType', 'husqvarna');
                         <div class="form-group">
                             <label class="col-sm-3 control-label" >{{Jeudi}}</label>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl1s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="jeu_ts1_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl1s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl1e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl1e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="jeu_ts1_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl1e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl1e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="jeu_en_ts1" checked/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="jeu_ts1_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_zn1_p'>{{+}}</a>
                             </div>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl2s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="jeu_ts2_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl2s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl2e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl2e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="jeu_ts2_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl2e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_pl2e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="jeu_en_ts2"/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="jeu_ts2_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_jeu_zn2_p'>{{+}}</a>
@@ -300,23 +312,23 @@ sendVarToJS('eqType', 'husqvarna');
                         <div class="form-group">
                             <label class="col-sm-3 control-label" >{{Vendredi}}</label>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl1s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="ven_ts1_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl1s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl1e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl1e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="ven_ts1_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl1e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl1e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="ven_en_ts1" checked/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="ven_ts1_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_zn1_p'>{{+}}</a>
                             </div>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl2s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="ven_ts2_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl2s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl2e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl2e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="ven_ts2_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl2e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_pl2e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="ven_en_ts2" />
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="ven_ts2_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_ven_zn2_p'>{{+}}</a>
@@ -325,23 +337,23 @@ sendVarToJS('eqType', 'husqvarna');
                         <div class="form-group">
                             <label class="col-sm-3 control-label" >{{Samedi}}</label>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl1s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="sam_ts1_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl1s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl1e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl1e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="sam_ts1_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl1e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl1e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="sam_en_ts1" checked/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="sam_ts1_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_zn1_p'>{{+}}</a>
                             </div>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl2s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="sam_ts2_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl2s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl2e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl2e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="sam_ts2_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl2e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_pl2e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="sam_en_ts2"/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="sam_ts2_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_sam_zn2_p'>{{+}}</a>
@@ -350,23 +362,23 @@ sendVarToJS('eqType', 'husqvarna');
                         <div class="form-group">
                             <label class="col-sm-3 control-label" >{{Dimanche}}</label>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl1s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="dim_ts1_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl1s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl1e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl1s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl1e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="dim_ts1_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl1e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl1e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="dim_en_ts1" checked/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="dim_ts1_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_zn1_p'>{{+}}</a>
                             </div>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl2s_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="dim_ts2_begin"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl2s_m'>{{-}}</a>
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl2e_p'>{{+}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl2s_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl2e_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="dim_ts2_end"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl2e_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_pl2e_p'>{{+}}</a>
                               <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="dim_en_ts2"/>
                               <input type="text" style="display : inline-block; width:40px;" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="dim_ts2_zone"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_dim_zn2_p'>{{+}}</a>
@@ -376,20 +388,20 @@ sendVarToJS('eqType', 'husqvarna');
                         </div>
                         <div class="form-group" style="text-align:center">
                             <label class="col-sm-3 control-label"></label>
-                            <div class="col-md-4" style="background-color:#303030">
+                            <div class="col-md-4 form-control">
                               <label class="control-label" style="min-width:80px">{{Initialisation plage horaire 1 ou 2}}</label>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label" ></label>
                             <div class="col-md-4">
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_inits_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_inits_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class="form-control roundedLeft" id="init_start" value="11:00"/>                              
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_inits_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_inits_p'>{{+}}</a>
 
-                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_inite_p'>{{+}}</a>
+                              <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_inite_m'>{{-}}</a>
                               <input type="text" style="display : inline-block; width: 60px;" class=" form-control roundedLeft" id="init_end" value="20:00"/>
-                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_inite_m'>{{-}}</a>
+                              <a style="margin-right:5px;" class="btn btn-info btn-sm tooltips" id='bt_inite_p'>{{+}}</a>
                               <input type="checkbox"  id="init_valid" checked/>
                               <input type="text" style="display : inline-block; width:40px;" class="form-control roundedLeft"  id="init_zone" value="1"/>
                               <a style="margin-left:5px;" class="btn btn-info btn-sm tooltips" id='bt_init_zn_p'>{{+}}</a>

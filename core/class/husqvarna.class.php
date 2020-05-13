@@ -29,7 +29,10 @@ const MDPLN_IDLE = "Repos";
 const MDPLN_ACT1 = "Actif plage 1";
 const MDPLN_ACT2 = "Actif plage 2";
 const MDPLN_WPARKED = "Attente retour base";
-
+// Seuil sur la quantité de pluie dans les 15 mn pour la condition de retour: chiffre entre 3 et 12 (3 pas de pluie, 12 pluie forte sur les 3x5mn)
+const METEO_SEUIL_PLUIE_RETOUR = 6;   // retour du robot si pluie > à ce seuil
+// Seuil sur la quantité de pluie dans les 60 mn: chiffre entre 12 et 48 (12 pas de pluie, 48 pluie forte sur les 12x5mn)
+const METEO_SEUIL_PLUIE_DEPART = 18;  // non départ du robot si pluie > à ce seuil
 
 class husqvarna extends eqLogic {
     /*     * *************************Attributs****************************** */
@@ -200,7 +203,7 @@ class husqvarna extends eqLogic {
     public function set_zone($zone) {
       if ($zone == 1) {
         $cmd_zn = cmd::byId(str_replace('#', '', $this->getConfiguration('cmd_set_zone_1')));
-        if (is_object(!$cmd_zn)) {
+        if (!is_object($cmd_zn)) {
           throw new Exception(__('Impossible de trouver la commande Set Zone1', __FILE__));
         }
         $cmd_zn->execCmd();
@@ -208,7 +211,7 @@ class husqvarna extends eqLogic {
       }
       elseif ($zone == 2) {
         $cmd_zn = cmd::byId(str_replace('#', '', $this->getConfiguration('cmd_set_zone_2')));
-        if (is_object(!$cmd_zn)) {
+        if (!is_object($cmd_zn)) {
           throw new Exception(__('Impossible de trouver la commande Set Zone2', __FILE__));
         }
         $cmd_zn->execCmd();
@@ -311,6 +314,20 @@ class husqvarna extends eqLogic {
             $cmd = $this->getCmd(null, 'meteo_activ');
             $pl_meteo = $cmd->execCmd();
             $multizone = $this->getConfiguration("enable_2_areas");
+            if ($pl_meteo == 1) {
+              // recuperation de la pluie dans les 15mn et dans l'heure
+              $cmd_name = str_replace('#', '', $this->getConfiguration('info_pluie_5mn'));
+              $info_pluie_5m  = cmd::byId($cmd_name);
+              $info_pluie_10m = cmd::byId(str_replace('0-5', '5-10', $cmd_name));
+              $info_pluie_15m = cmd::byId(str_replace('0-5', '10-15', $cmd_name));
+              $info_pluie_1h  = cmd::byId(str_replace('#', '', $this->getConfiguration('info_pluie_1h')));
+              if (!is_object($info_pluie_5m) or !is_object($info_pluie_10m) or !is_object($info_pluie_15m) or !is_object($info_pluie_1h)) {
+                throw new Exception(__('Impossible de trouver les commandes Info pluie', __FILE__));
+              }
+              $pluie_15m = $info_pluie_5m->execCmd() + $info_pluie_10m->execCmd() + $info_pluie_15m->execCmd();
+              $pluie_1h  = $info_pluie_1h->execCmd();
+              log::add('husqvarna','debug',"Pluie dans les 15mn:".$pluie_15m." / 1h:".$pluie_1h);
+            }
 
             // recuperation de la definition des plages horaires
             $day = DAY_NAMES[intval(date("w"))];
@@ -353,8 +370,9 @@ class husqvarna extends eqLogic {
             }
             else {
               switch ($pln_state) {
-                case MDPLN_IDLE: // mode repos (en attente d'une plage horaire active)
-                    if (($pl_on == 1) and ($pl1_en == 1) and ($cur_hm>=$pl1_ts) and ($cur_hm<$pl1_te)) {
+                case MDPLN_IDLE: // mode repos (en attente d'une plage horaire active)  METEO_SEUIL_PLUIE_DEPART
+                    if (($pl_on == 1) and ($pl1_en == 1) and ($cur_hm>=$pl1_ts) and ($cur_hm<$pl1_te) and
+                       (($pl_meteo == 0) or (($pl_meteo == 1) and ($pluie_1h<=METEO_SEUIL_PLUIE_DEPART)))) {
                       $pln_state = MDPLN_ACT1;
                       $mode_changed = 1;
                       // Sélection de la zone choisie
@@ -365,7 +383,8 @@ class husqvarna extends eqLogic {
                       $order = $session_husqvarna->control($this->getLogicalId(), 'START');
                       log::add('husqvarna','info',"Départ tonte sur plage horaire 1. (Ret=".$order->status.")");
                     }
-                    elseif (($pl_on == 1) and ($pl2_en == 1) and ($cur_hm>=$pl2_ts) and ($cur_hm<$pl2_te)) {
+                    elseif (($pl_on == 1) and ($pl2_en == 1) and ($cur_hm>=$pl2_ts) and ($cur_hm<$pl2_te) and 
+                           (($pl_meteo == 0) or (($pl_meteo == 1) and ($pluie_1h<=METEO_SEUIL_PLUIE_DEPART)))) {
                       $pln_state = MDPLN_ACT2;
                       $mode_changed = 1;
                       // Sélection de la zone choisie
@@ -378,21 +397,25 @@ class husqvarna extends eqLogic {
                     }
                     break;
                 case MDPLN_ACT1: // Robot en action sur la plage horaire 1
-                    if ((($pl1_en == 1) and ($cur_hm>$pl1_te)) or ($pl_on == 0)) {
+                    if ((($pl1_en == 1) and ($cur_hm>$pl1_te)) or ($pl_on == 0) or (($pl_meteo == 1) and ($pluie_15m>=METEO_SEUIL_PLUIE_RETOUR))) {
                       $pln_state = MDPLN_WPARKED;
                       $mode_changed = 1;
                       // Park de la tondeuse
                       $order = $session_husqvarna->control($this->getLogicalId(), 'PARK');
                       log::add('husqvarna','info',"Fin de tonte sur plage horaire 1. (Ret=".$order->status.")");
+                      if (($pl_meteo == 1) and ($pluie_15m>=METEO_SEUIL_PLUIE_RETOUR))
+                        log::add('husqvarna','info',"... Retour à la base pour raison de pluie sur 15 minutes:".$pluie_15m);
                     }
                     break;
                 case MDPLN_ACT2: // Robot en action sur la plage horaire 2
-                    if ((($pl2_en == 1) and ($cur_hm>$pl2_te)) or ($pl_on == 0)) {
+                    if ((($pl2_en == 1) and ($cur_hm>$pl2_te)) or ($pl_on == 0) or (($pl_meteo == 1) and ($pluie_15m>=METEO_SEUIL_PLUIE_RETOUR))) {
                       $pln_state = MDPLN_WPARKED;
                       $mode_changed = 1;
                       // Park de la tondeuse
                       $order = $session_husqvarna->control($this->getLogicalId(), 'PARK');
                       log::add('husqvarna','info',"Fin de tonte sur plage horaire 2. (Ret=".$order->status.")");
+                      if (($pl_meteo == 1) and ($pluie_15m>=METEO_SEUIL_PLUIE_RETOUR))
+                        log::add('husqvarna','info',"... Retour à la base pour raison de pluie sur 15 minutes:".$pluie_15m);
                     }
                     break;
                 case MDPLN_WPARKED: // Attente retour base

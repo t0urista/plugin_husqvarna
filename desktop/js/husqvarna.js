@@ -5,9 +5,9 @@ $(".listCmdActionOther").on('click', function () {
     el.closest('.input-group').find('input').value(result.human);
   });
 });
-$(".listCmdInfoOther").on('click', function () {
+$(".listCmdInfoNumeric").on('click', function () {
   var el = $(this);
-  jeedom.cmd.getSelectModal({cmd: {type: 'info',subType : 'other'}}, function (result) {
+  jeedom.cmd.getSelectModal({cmd: {type: 'info',subType : 'numeric'}}, function (result) {
     el.closest('.input-group').find('input').value(result.human);
   });
 });

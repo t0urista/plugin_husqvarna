@@ -180,12 +180,23 @@ sendVarToJS('eqType', 'husqvarna');
                         </div>
                         <legend>{{Utilisation de la météo}}</legend>
                         <div class="form-group">
-                          <label class="col-sm-3 control-label" >{{Information de pluie dans l'heure}}</label>
+                          <label class="col-sm-3 control-label" >{{Pluie prévue dans l'heure}}</label>
                           <div class="col-sm-4">
                             <div class="input-group">
-                              <input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="info_pluie"/>
+                              <input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="info_pluie_1h"/>
                               <span class="input-group-btn">
-                                <a class="btn btn-default listCmdInfoOther roundedRight"><i class="fas fa-list-alt"></i></a>
+                                <a class="btn btn-default listCmdInfoNumeric roundedRight"><i class="fas fa-list-alt"></i></a>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-sm-3 control-label" >{{Prévision à 0-5 mn}}</label>
+                          <div class="col-sm-4">
+                            <div class="input-group">
+                              <input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="info_pluie_5mn"/>
+                              <span class="input-group-btn">
+                                <a class="btn btn-default listCmdInfoNumeric roundedRight"><i class="fas fa-list-alt"></i></a>
                               </span>
                             </div>
                           </div>

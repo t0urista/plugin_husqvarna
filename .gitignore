@@ -1,3 +1,3 @@
 # Ignoring directories (Both the directory itself and its contents will be ignored.)
 /ressources/python/
-/data/mower_log.txt
+mower_log.txt

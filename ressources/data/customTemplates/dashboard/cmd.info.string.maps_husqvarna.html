@@ -1,0 +1,50 @@
+<div style="min-height:200px;min-width:200px;" id="husqvarna_map" classe="cmd #history# tooltips cmd cmd-widget" data-type="info" data-subtype="string" data-cmd-id="#id#" title="#collectDate#">
+    <canvas class="myCanvas" width="400" height="400" style="no-repeat center center;border:5px solid #000000;">
+    </canvas>
+  <script>
+    hist = "#state#";
+    list_of_points = hist.split('/');
+    point = list_of_points[0].split(',');
+    img_wd = point[0];
+    img_he = point[1];
+    var canvas = document.querySelector('.myCanvas');
+    var ctx = canvas.getContext('2d');
+    ctx.canvas.width = img_wd;
+    ctx.canvas.height= img_he;
+    ctx.globalAlpha = 1.0;
+    var backgroundImage = new Image(); 
+    backgroundImage.src = 'plugins/husqvarna/ressources/maison.png';
+    backgroundImage.onload = function() {
+      ctx.drawImage(backgroundImage, 0, 0, img_wd, img_he);
+      ctx.setLineDash([5,5]);
+      ctx.lineWidth = 2;
+      var i;
+      for (i=0; i<50; i++) {
+        point = list_of_points[i+1].split(',');
+        if (i==0) {
+          ctx.beginPath();
+          ctx.strokeStyle = 'red';
+          ctx.moveTo(point[0],point[1]);
+          }
+        else {
+          ctx.lineTo(point[0],point[1]);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.globalAlpha = 1.0-(i*0.015);
+          ctx.strokeStyle = 'red';
+          ctx.moveTo(point[0],point[1]);
+          }
+      }
+      // trace cercle autour du point courant
+      ctx.beginPath();
+      ctx.strokeStyle = 'GreenYellow';
+      ctx.globalAlpha = 1.0;
+      ctx.lineWidth = 4;
+      ctx.setLineDash([]);
+      point = list_of_points[1].split(',');
+      ctx.arc(point[0], point[1], 8, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+
+  </script>
+</div> 

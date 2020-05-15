@@ -302,21 +302,25 @@ $('#bt_validChangeDate').on('click',function(){
 $('#bt_per_today').on('click',function(){
   $('#in_startDate').datepicker( "setDate", "+0" );
   $('#in_endDate').datepicker( "setDate", "+1" );
+  loadData();
 });
 // Hier
 $('#bt_per_yesterday').on('click',function(){
   $('#in_startDate').datepicker( "setDate", "-1" );
   $('#in_endDate').datepicker( "setDate", "+0" );
+  loadData();
 });
 // Les 7 derniers jours
 $('#bt_per_last_week').on('click',function(){
   $('#in_startDate').datepicker( "setDate", "-6" );
   $('#in_endDate').datepicker( "setDate", "+1" );
+  loadData();
 });
 // Tout
 $('#bt_per_all').on('click',function(){
   $('#in_startDate').datepicker( "setDate", "-730" );  // - 2 ans
   $('#in_endDate').datepicker( "setDate", "+1" );
+  loadData();
 });
 
 // gestion du bouton get settings

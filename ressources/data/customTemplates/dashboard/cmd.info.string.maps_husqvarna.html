@@ -3,7 +3,7 @@
     </canvas>
   <script>
     jeedom.cmd.update['#id#'] = function(_options) { 
-        $('.cmd[data-cmd_uid=#uid#]').attr('title','Date de valeur : '+_options.valueDate+'<br/>Date de collecte : '+_options.collectDate)
+        $('.cmd[data-cmd_uid=#uid#]').attr('title','Date de valeur : '+_options.valueDate+'<br/>Date de collecte : '+_options.collectDate);
         hist = _options.display_value;    
         list_of_points = hist.split('/');
         point = list_of_points[0].split(',');

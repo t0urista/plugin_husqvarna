@@ -88,8 +88,8 @@ class husqvarna extends eqLogic {
                       "mowerStatus"        => array('Etat robot',             'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
                       "operatingMode"      => array('Mode de fonctionnement', 'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
                       "nextStartSource"    => array('Prochain départ',        'h', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "nextStartTimestamp" => array('Heure prochain départ',  'h', 'info',  'string',  "u", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
-                      "storedTimestamp"    => array('Heure dernier rapport',  'h', 'info',  'string',  "u", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "nextStartTimestamp" => array('Heure prochain départ',  'h', 'info',  'string',  "ut2", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
+                      "storedTimestamp"    => array('Heure dernier rapport',  'h', 'info',  'string',  "ut1", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
                       "errorStatus"        => array('Statut erreur',          'p', 'info',  'string',   "", 0, "GENERIC_INFO",   'core::badge', 'core::badge', ''),
                       "planning_en"        => array('Planification cmd',      'p', 'action','other',    "", 0, "GENERIC_ACTION", 'custom::IconActionNt', 'custom::IconActionNt',      ''),
                       "planning_activ"     => array('Planification',          'p', 'info',  'binary',   "", 0, "GENERIC_INFO",   'core::alert', 'core::alert', ''),
@@ -113,6 +113,7 @@ class husqvarna extends eqLogic {
                 $cmd->setEqLogic_id($this->getId());
                 $cmd->setType($type);
                 $cmd->setSubType($subtype);
+                $cmd->setUnite($unit);
                 $cmd->setLogicalId($id);
                 if ( $listValue != "" )
                 {
@@ -126,30 +127,15 @@ class husqvarna extends eqLogic {
             }
             else
             {
-                if ( $cmd->getType() == "" )
-                {
-                    $cmd->setType($type);
-                }
-                if ( $cmd->getSubType() == "" )
-                {
-                    $cmd->setSubType($subtype);
-                }
-                if ( $cmd->getDisplay('invertBinary') == "" )
-                {
-                    $cmd->setDisplay('invertBinary',$invertBinary);
-                }
-                if ( $cmd->getDisplay('generic_type') == "" )
-                {
-                    $cmd->setDisplay('generic_type', $generic_type);
-                }
-                if ( $cmd->getTemplate('dashboard') == "" )
-                {
-                    $cmd->setTemplate('dashboard', $template_dashboard);
-                }
-                if ( $cmd->getTemplate('mobile') == "" )
-                {
-                    $cmd->setTemplate('mobile', $template_mobile);
-                }
+                $cmd->setType($type);
+                $cmd->setSubType($subtype);
+                $cmd->setUnite($unit);
+                $cmd->setDisplay('invertBinary',$invertBinary);
+                $cmd->setDisplay('generic_type', $generic_type)
+/*          
+                $cmd->setTemplate('dashboard', $template_dashboard);
+                $cmd->setTemplate('mobile', $template_mobile)
+*/
                 if ( $listValue != "" )
                 {
                     $cmd->setConfiguration('listValue', $listValue);
@@ -276,10 +262,10 @@ class husqvarna extends eqLogic {
                     // Values are stored if new or every 5 mins
                     if (($cmd->execCmd() != $cmd->formatValue($status->{$id})) or (($min%5)==0))
                     {
-                        log::add('husqvarna','info',"Refresh ".$id." : ".$status->{$id});
                         $cmd->setCollectDate('');
-                        if ($unit  != "u" )
+                        if (substr($unit,0,2) != "ut") {
                         {
+                            log::add('husqvarna','info',"Refresh ".$id." : ".$status->{$id});
                             if ($id == "lastErrorCode")
                             {
                                 $error_code = $status->{$id};
@@ -296,11 +282,20 @@ class husqvarna extends eqLogic {
                         }
                         else
                         {
-                            if ( $status->{$id} == 0 )
+                              if ( $status->{$id} == 0 )
                             {
                                 $cmd->event(__('Inconnue',__FILE__));
                             } else {
-                                $cmd->event( date('d M Y H:i', intval(substr($status->{$id},0,10)) - 3600 * (date('I')+1) ));
+				                if ($unit == "ut1") {
+					                $localTimeStamp = date('d M Y H:i', intval(substr($status->{$id},0,10)));
+					                log::add('husqvarna','info',"Refresh ".$id." : ".$status->{$id}.", localtime : ". $localTimeStamp);
+					                $cmd->event($localTimeStamp );
+				                } else if ($unit == "ut2") {
+					                $offsetTimeStamp = date("Z");
+					                $localTimeStamp = date('d M Y H:i', intval(substr($status->{$id},0,10)) - $offsetTimeStamp );
+					                log::add('husqvarna','info',"Refresh ".$id." : ".$status->{$id}.", localtime : ". $localTimeStamp.", offset : ". $offsetTimeStamp);
+					                $cmd->event($localTimeStamp );
+				                }
                             }
                         }
                     }

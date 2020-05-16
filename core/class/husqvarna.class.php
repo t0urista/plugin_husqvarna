@@ -131,10 +131,10 @@ class husqvarna extends eqLogic {
                 $cmd->setSubType($subtype);
                 $cmd->setUnite($unit);
                 $cmd->setDisplay('invertBinary',$invertBinary);
-                $cmd->setDisplay('generic_type', $generic_type)
+                $cmd->setDisplay('generic_type', $generic_type);
 /*          
                 $cmd->setTemplate('dashboard', $template_dashboard);
-                $cmd->setTemplate('mobile', $template_mobile)
+                $cmd->setTemplate('mobile', $template_mobile);
 */
                 if ( $listValue != "" )
                 {
@@ -263,7 +263,7 @@ class husqvarna extends eqLogic {
                     if (($cmd->execCmd() != $cmd->formatValue($status->{$id})) or (($min%5)==0))
                     {
                         $cmd->setCollectDate('');
-                        if (substr($unit,0,2) != "ut") {
+                        if (substr($unit,0,2) != "ut")
                         {
                             log::add('husqvarna','info',"Refresh ".$id." : ".$status->{$id});
                             if ($id == "lastErrorCode")
@@ -276,7 +276,8 @@ class husqvarna extends eqLogic {
                                 $cmd = $this->getCmd(null, "errorStatus");
                                 $cmd->event($error_status);
                             }
-                            else {
+                            else 
+			    {
                                 $cmd->event($status->{$id});
                             }
                         }
